@@ -1,18 +1,18 @@
 /**
- * Suno 智能音乐创作脚本
- * 支持AI生成歌词（当本地模型可用时）
- * 包含默认的中国风歌词作为备选
+ * Suno 中国风音乐一键创作脚本（测试版）
+ * 使用硬编码歌词来测试流程
  */
 
-const { execSync } = require('child_process');
+const { execSync, exec } = require('child_process');
 const path = require('path');
 
 const CDP_PORT = 48840;
 const SUNO_CREATE_URL = 'https://suno.com/create';
 const SCREENSHOT_DIR = path.dirname(__filename);
 
-// 默认歌词（当AI不可用时使用）
-const DEFAULT_LYRIC = `《山水间》
+// 测试用歌词配置
+const MUSIC_CONFIG = {
+  prompt: `《山水间》
 作词：AI
 
 主歌 A1：
@@ -42,10 +42,10 @@ const DEFAULT_LYRIC = `《山水间》
 结尾：
 青峦叠翠入云间，溪流潺潺绕山巅
 古寺钟声远，林深听松风
-心若静如水，天地自悠然`;
-
-const DEFAULT_STYLE = 'Chinese traditional folk, guzheng, erhu, bamboo flute, peaceful mountain atmosphere, zen-like tranquility, acoustic instrumentation';
-const DEFAULT_TITLE = '山水间';
+心若静如水，天地自悠然`,
+  style: 'Chinese traditional folk, guzheng, erhu, bamboo flute, peaceful mountain atmosphere, zen-like tranquility, acoustic instrumentation',
+  title: '山水间'
+};
 
 function run(cmd) {
   try {
@@ -65,36 +65,13 @@ function sleep(ms) {
 }
 
 async function main() {
-  const TOPIC = process.argv[2] || '山水';
-  const STYLE = process.argv[3] || '中国风';
-
   console.log('');
   console.log('🎵 ╔════════════════════════════════════╗');
-  console.log('   ║    Suno 智能音乐创作             ║');
+  console.log('   ║    Suno 中国风音乐一键创作（测试） ║');
   console.log('   ╚════════════════════════════════════╝');
   console.log('');
-  console.log(`   📝 主题：${TOPIC}`);
-  console.log(`   🎸 风格：${STYLE}`);
-  console.log('');
 
-  let musicContent = {
-    title: DEFAULT_TITLE,
-    style: DEFAULT_STYLE,
-    lyric: DEFAULT_LYRIC
-  };
-
-  try {
-    // 尝试使用AI生成
-    console.log('🤖 尝试使用AI生成歌词...');
-    const { generateMusicContent } = require('./ai-lyric');
-    musicContent = await generateMusicContent(TOPIC, STYLE);
-    console.log('✅ AI生成成功！');
-  } catch (error) {
-    console.log('⚠️ AI生成失败，使用默认歌词');
-    console.log('   错误原因:', error.message);
-  }
-
-  console.log('');
+  // Step 1: 打开创作页面
   console.log('📡 Step 1/5  连接浏览器并打开 Suno 创作页面...');
   ab(`open ${SUNO_CREATE_URL}`);
   await sleep(3000);
@@ -102,9 +79,11 @@ async function main() {
   const currentUrl = ab('get url');
   console.log(`   ✅ 当前页面：${currentUrl}`);
 
+  // Step 2: 获取页面快照，找到输入框 ref
   console.log('🔍 Step 2/5  分析页面结构...');
   const snapshot = ab('snapshot');
 
+  // 解析 ref 编号
   const promptMatch = snapshot.match(/textbox "Write some lyrics[^\"]*" \[ref=(e\d+)\]/);
   const styleMatch = snapshot.match(/textbox "([^\"]*(?:guitar|whistle|hichiriki|electronic)[^\"]*)" \[ref=(e\d+)\]/);
   const titleMatch = snapshot.match(/textbox "Song Title[^\"]*" \[ref=(e\d+)\]/);
@@ -117,27 +96,33 @@ async function main() {
 
   console.log(`   ✅ 提示词框: ${promptRef} | 风格框: ${styleRef} | 标题框: ${titleRef} | 创作按钮: ${createRef}`);
 
+  // Step 3: 填写歌曲标题
   console.log(`🎼 Step 3/5  填写歌曲信息...`);
-  ab(`fill ${titleRef} "${musicContent.title}"`);
-  console.log(`   📝 标题：${musicContent.title}`);
+  ab(`fill ${titleRef} "${MUSIC_CONFIG.title}"`);
+  console.log(`   📝 标题：${MUSIC_CONFIG.title}`);
   await sleep(500);
 
-  ab(`fill ${styleRef} "${musicContent.style}"`);
-  console.log(`   🎸 风格：${musicContent.style}`);
+  // 填写风格
+  ab(`fill ${styleRef} "${MUSIC_CONFIG.style}"`);
+  console.log(`   🎸 风格：${MUSIC_CONFIG.style}`);
   await sleep(500);
 
-  ab(`fill ${promptRef} "${musicContent.lyric}"`);
-  console.log(`   ✍️  提示词：${musicContent.lyric.substring(0, 100)}...`);
+  // 填写歌词/提示词
+  ab(`fill ${promptRef} "${MUSIC_CONFIG.prompt}"`);
+  console.log(`   ✍️  提示词：${MUSIC_CONFIG.prompt.substring(0, 100)}...`);
   await sleep(1000);
 
+  // Step 4: 截图确认
   console.log('📸 Step 4/5  截图确认填写内容...');
   const screenshotPath = path.join(SCREENSHOT_DIR, 'suno-before-create.png');
   ab(`screenshot "${screenshotPath}"`);
   console.log(`   ✅ 截图已保存：${screenshotPath}`);
   await sleep(500);
 
+  // Step 5: 点击创作按钮
   console.log('🚀 Step 5/5  点击创作按钮...');
 
+  // 重新获取快照，检查按钮是否已激活
   const snapshot2 = ab('snapshot');
   const btnEnabled = !snapshot2.includes(`button "Create song" [disabled`);
 
@@ -145,18 +130,20 @@ async function main() {
     ab(`click ${createRef}`);
     console.log('   ✅ 已点击创作按钮！');
   } else {
+    // 按钮还是 disabled，尝试按 Enter 提交
     console.log('   ⚠️  按钮尚未激活，尝试键盘 Enter 提交...');
     ab(`press ${promptRef} Enter`);
   }
 
   await sleep(5000);
 
+  // 最终截图
   const finalPath = path.join(SCREENSHOT_DIR, 'suno-creating.png');
   ab(`screenshot "${finalPath}"`);
 
   console.log('');
   console.log('🎉 ═══════════════════════════════════════');
-  console.log('   音乐创作已启动！');
+  console.log('   中国风音乐创作已启动！');
   console.log('   请在浏览器中等待音乐生成（约30-60秒）');
   console.log(`   最终截图：${finalPath}`);
   console.log('═══════════════════════════════════════');

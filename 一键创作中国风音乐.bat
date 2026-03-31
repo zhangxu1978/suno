@@ -29,7 +29,7 @@ echo [信息] 正在启动自动化脚本...
 echo [信息] 请确保 Chrome 已以调试模式运行 (端口 48840)
 echo.
 
-node suno-create.js
+node suno-create.js "%~1" "%~2"
 
 echo.
 echo [完成] 脚本执行结束，请查看浏览器中的创作进度
