@@ -89,6 +89,11 @@ async function main() {
     const { generateMusicContent } = require('./ai-lyric');
     musicContent = await generateMusicContent(TOPIC, STYLE);
     console.log('✅ AI生成成功！');
+
+    const lyricDir = path.join(SCREENSHOT_DIR, 'lyric');
+    const lyricFile = path.join(lyricDir, `${musicContent.title}.txt`);
+    require('fs').writeFileSync(lyricFile, musicContent.lyric, 'utf8');
+    console.log(`   💾 歌词已保存：${lyricFile}`);
   } catch (error) {
     console.log('⚠️ AI生成失败，使用默认歌词');
     console.log('   错误原因:', error.message);
@@ -97,7 +102,7 @@ async function main() {
   console.log('');
   console.log('📡 Step 1/5  连接浏览器并打开 Suno 创作页面...');
   ab(`open ${SUNO_CREATE_URL}`);
-  await sleep(3000);
+  await sleep(30000);
 
   const currentUrl = ab('get url');
   console.log(`   ✅ 当前页面：${currentUrl}`);
@@ -105,28 +110,52 @@ async function main() {
   console.log('🔍 Step 2/5  分析页面结构...');
   const snapshot = ab('snapshot');
 
-  const promptMatch = snapshot.match(/textbox "Write some lyrics[^\"]*" \[ref=(e\d+)\]/);
-  const styleMatch = snapshot.match(/textbox "([^\"]*(?:guitar|whistle|hichiriki|electronic)[^\"]*)" \[ref=(e\d+)\]/);
-  const titleMatch = snapshot.match(/textbox "Song Title[^\"]*" \[ref=(e\d+)\]/);
-  const createBtnMatch = snapshot.match(/button "Create song"[^\[]*\[(?:disabled, )?ref=(e\d+)\]/);
+  const promptRefMatch = snapshot.match(/textbox "Write some lyrics[^\"]*" \[ref=(e\d+)\]/);
+  const titleRefMatch = snapshot.match(/textbox "Song Title[^\"]*" \[ref=(e\d+)\]/);
+  const createBtnMatch = snapshot.match(/button "Create song"[^\[]*\[ref=(e\d+)\]/);
 
-  const promptRef = promptMatch ? promptMatch[1] : 'e224';
-  const styleRef = styleMatch ? styleMatch[2] : 'e226';
-  const titleRef = titleMatch ? titleMatch[1] : 'e94';
-  const createRef = createBtnMatch ? createBtnMatch[1] : 'e48';
+  const allTextboxMatches = [...snapshot.matchAll(/textbox "([^"]*)" \[ref=(e\d+)\]/g)];
+  const promptRef = promptRefMatch ? promptRefMatch[1] : null;
+  const titleRef = titleRefMatch ? titleRefMatch[1] : null;
+  const createRef = createBtnMatch ? createBtnMatch[1] : null;
 
-  console.log(`   ✅ 提示词框: ${promptRef} | 风格框: ${styleRef} | 标题框: ${titleRef} | 创作按钮: ${createRef}`);
+  let styleRef = null;
+  for (const match of allTextboxMatches) {
+    const text = match[1];
+    if (!text.includes('lyrics') && !text.includes('Song Title') && !text.includes('Enhance') && !text.includes('Search')) {
+      styleRef = match[2];
+      break;
+    }
+  }
 
-  console.log(`🎼 Step 3/5  填写歌曲信息...`);
-  ab(`fill ${titleRef} "${musicContent.title}"`);
-  console.log(`   📝 标题：${musicContent.title}`);
+  console.log(`   ✅ 歌词框: ${promptRef} | 风格框: ${styleRef} | 标题框: ${titleRef} | 创作按钮: ${createRef}`);
+
+  if (!promptRef || !styleRef || !titleRef || !createRef) {
+    console.log('   ⚠️  部分元素未找到，使用备用方案...');
+  }
+
+  console.log('🎼 Step 3/5  填写歌曲信息...');
+  if (titleRef) {
+    ab(`fill ${titleRef} "${musicContent.title}"`);
+    console.log(`   📝 标题：${musicContent.title}`);
+  }
   await sleep(500);
 
-  ab(`fill ${styleRef} "${musicContent.style}"`);
-  console.log(`   🎸 风格：${musicContent.style}`);
+  if (styleRef) {
+    ab(`fill ${styleRef} "${musicContent.style}"`);
+    console.log(`   🎸 风格：${musicContent.style}`);
+  }
   await sleep(500);
 
-  ab(`fill ${promptRef} "${musicContent.lyric}"`);
+  const lyricDir = path.join(SCREENSHOT_DIR, 'lyric');
+  const lyricFile = path.join(lyricDir, `lyric-temp-${Date.now()}.txt`);
+  require('fs').writeFileSync(lyricFile, musicContent.lyric, 'utf8');
+  run(`powershell -Command "Get-Content -Path '${lyricFile}' -Encoding UTF8 | Set-Clipboard"`);
+  if (promptRef) {
+    ab(`click ${promptRef}`);
+  }
+  await sleep(300);
+  ab('clipboard read paste');
   console.log(`   ✍️  提示词：${musicContent.lyric.substring(0, 100)}...`);
   await sleep(1000);
 
@@ -138,15 +167,12 @@ async function main() {
 
   console.log('🚀 Step 5/5  点击创作按钮...');
 
-  const snapshot2 = ab('snapshot');
-  const btnEnabled = !snapshot2.includes(`button "Create song" [disabled`);
-
-  if (btnEnabled) {
+  if (createRef) {
     ab(`click ${createRef}`);
     console.log('   ✅ 已点击创作按钮！');
   } else {
-    console.log('   ⚠️  按钮尚未激活，尝试键盘 Enter 提交...');
-    ab(`press ${promptRef} Enter`);
+    console.log('   ⚠️  按钮未找到，尝试键盘 Enter 提交...');
+    ab('press e40 Enter');
   }
 
   await sleep(5000);

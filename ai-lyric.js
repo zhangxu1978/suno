@@ -134,7 +134,11 @@ async function generateMusicContent(topic, style = '中国风') {
   console.log('');
   
   const lyric = await generateLyric(topic, style);
+  //等待1秒，确保歌词生成完成，避免标题生成失败
+  await sleep(1000);
   const title = await generateTitle(lyric);
+  //等待1秒，确保标题生成完成，避免风格描述生成失败
+  await sleep(1000);
   const styleDesc = await generateStyle(lyric, title);
   
   console.log('');
@@ -153,5 +157,7 @@ async function generateMusicContent(topic, style = '中国风') {
     lyric
   };
 }
-
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 module.exports = { generateMusicContent, generateLyric, generateStyle, generateTitle };

@@ -74,7 +74,7 @@ async function main() {
   // Step 1: 打开创作页面
   console.log('📡 Step 1/5  连接浏览器并打开 Suno 创作页面...');
   ab(`open ${SUNO_CREATE_URL}`);
-  await sleep(3000);
+  await sleep(30000);
 
   const currentUrl = ab('get url');
   console.log(`   ✅ 当前页面：${currentUrl}`);
@@ -108,7 +108,14 @@ async function main() {
   await sleep(500);
 
   // 填写歌词/提示词
-  ab(`fill ${promptRef} "${MUSIC_CONFIG.prompt}"`);
+  const lyricDir = path.join(SCREENSHOT_DIR, 'lyric');
+  const lyricFile = path.join(lyricDir, `${MUSIC_CONFIG.title}.txt`);
+  require('fs').writeFileSync(lyricFile, MUSIC_CONFIG.prompt, 'utf8');
+  console.log(`   💾 歌词已保存：${lyricFile}`);
+  run(`powershell -Command "Get-Content -Path '${lyricFile}' -Encoding UTF8 | Set-Clipboard"`);
+  ab(`click ${promptRef}`);
+  await sleep(300);
+  ab('clipboard read paste');
   console.log(`   ✍️  提示词：${MUSIC_CONFIG.prompt.substring(0, 100)}...`);
   await sleep(1000);
 
