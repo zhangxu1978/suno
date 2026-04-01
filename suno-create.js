@@ -189,13 +189,8 @@ agent-browser --cdp ${CDP_PORT} type ${promptRef} $lyric
 
   console.log('🚀 Step 5/5  点击创作按钮...');
 
-  if (createRef) {
-    ab(`click ${createRef}`);
-    console.log('   ✅ 已点击创作按钮！');
-  } else {
-    console.log('   ⚠️  按钮未找到，尝试键盘 Enter 提交...');
-    ab('press e40 Enter');
-  }
+  ab('find role button click --name "Create song"');
+  console.log('   ✅ 已点击创作按钮！');
 
   await sleep(5000);
 
