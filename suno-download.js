@@ -1,7 +1,9 @@
 const { execSync } = require('child_process');
 const path = require('path');
+const fs = require('fs');
 
 const CDP_PORT = 48840;
+const DOWNLOAD_DIR = path.join(__dirname, 'download');
 
 function run(cmd) {
   try {
@@ -20,7 +22,42 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function findSongInList(songName) {
+function ensureDownloadDir() {
+  if (!fs.existsSync(DOWNLOAD_DIR)) {
+    fs.mkdirSync(DOWNLOAD_DIR, { recursive: true });
+    console.log(`📁 创建下载目录: ${DOWNLOAD_DIR}`);
+  }
+}
+
+function moveLatestDownload(songName) {
+  const downloadsPath = 'D:\\BaiduNetdiskDownload';
+  const files = fs.readdirSync(downloadsPath)
+    .filter(f => f.endsWith('.mp3') || f.endsWith('.wav'))
+    .map(f => ({
+      name: f,
+      path: path.join(downloadsPath, f),
+      time: fs.statSync(path.join(downloadsPath, f)).mtime.getTime()
+    }))
+    .sort((a, b) => b.time - a.time);
+
+  if (files.length > 0) {
+    const latest = files[0];
+    const destPath = path.join(DOWNLOAD_DIR, latest.name);
+    fs.renameSync(latest.path, destPath);
+    console.log(`   📂 移动文件: ${latest.name} -> ${DOWNLOAD_DIR}`);
+    return true;
+  }
+  return false;
+}
+
+async function openLibraryPage() {
+  console.log('🌐 打开 Suno Library 页面...');
+  ab('open https://suno.com/me');
+  await sleep(3000);
+  console.log('   ✅ 页面已加载');
+}
+
+async function findAllSongs(songName) {
   console.log('🔍 Step 1/4  获取页面快照...');
   const snapshot = ab('snapshot');
 
@@ -28,30 +65,31 @@ async function findSongInList(songName) {
   const songNameForMatch = songNameClean.includes('《') ? songNameClean : `《${songNameClean}》`;
 
   const lines = snapshot.split('\n');
+  const moreOptionsRefs = [];
 
-  let moreOptionsRef = null;
   for (let i = 0; i < lines.length; i++) {
     if (lines[i].includes(songNameForMatch)) {
       for (let j = i; j < Math.min(i + 50, lines.length); j++) {
         if (lines[j].includes('"More options"')) {
           const match = lines[j].match(/ref=(e\d+)/);
           if (match) {
-            moreOptionsRef = match[1];
+            moreOptionsRefs.push(match[1]);
+            console.log(`   ✅ 找到歌曲 "${songName}" 的 More options: ${match[1]}`);
+            i = j;
             break;
           }
         }
       }
-      break;
     }
   }
 
-  if (moreOptionsRef) {
-    console.log(`   ✅ 找到歌曲 "${songName}" 的 More options: ${moreOptionsRef}`);
-    return moreOptionsRef;
+  if (moreOptionsRefs.length === 0) {
+    console.log(`   ❌ 未找到歌曲的 More options 按钮`);
+  } else {
+    console.log(`   📊 共找到 ${moreOptionsRefs.length} 首同名歌曲`);
   }
 
-  console.log(`   ❌ 未找到歌曲的 More options 按钮`);
-  return null;
+  return moreOptionsRefs;
 }
 
 async function openDownloadMenu(moreOptionsRef) {
@@ -140,6 +178,35 @@ async function confirmDownload() {
   return false;
 }
 
+async function downloadSong(moreOptionsRef, index, total) {
+  console.log(`\n📀 下载第 ${index}/${total} 首...\n`);
+
+  const menuOpened = await openDownloadMenu(moreOptionsRef);
+  if (!menuOpened) {
+    return false;
+  }
+
+  const mp3Selected = await selectMp3Format();
+  if (!mp3Selected) {
+    return false;
+  }
+
+  const downloaded = await confirmDownload();
+  if (!downloaded) {
+    return false;
+  }
+
+  console.log('   ⏳ 等待下载完成...');
+  await sleep(3000);
+
+  moveLatestDownload();
+
+  ab('press Escape');
+  await sleep(500);
+
+  return true;
+}
+
 async function main() {
   const songName = process.argv[2];
 
@@ -151,27 +218,40 @@ async function main() {
 
   console.log(`\n🎶 开始下载歌曲: ${songName}\n`);
 
-  const moreOptionsRef = await findSongInList(songName);
-  if (!moreOptionsRef) {
-    process.exit(1);
+  ensureDownloadDir();
+  await openLibraryPage();
+
+  let successCount = 0;
+  let songIndex = 0;
+
+  while (true) {
+    const moreOptionsRefs = await findAllSongs(songName);
+    
+    if (moreOptionsRefs.length === 0) {
+      console.log(`   ❌ 没有更多歌曲了`);
+      break;
+    }
+
+    if (songIndex >= moreOptionsRefs.length) {
+      console.log(`   ✅ 所有歌曲已处理完毕`);
+      break;
+    }
+
+    const moreOptionsRef = moreOptionsRefs[songIndex];
+    const success = await downloadSong(moreOptionsRef, songIndex + 1, moreOptionsRefs.length);
+    if (success) {
+      successCount++;
+    }
+
+    songIndex++;
+
+    if (songIndex < moreOptionsRefs.length) {
+      console.log('   ⏳ 准备下载下一首...');
+      await sleep(2000);
+    }
   }
 
-  const menuOpened = await openDownloadMenu(moreOptionsRef);
-  if (!menuOpened) {
-    process.exit(1);
-  }
-
-  const mp3Selected = await selectMp3Format();
-  if (!mp3Selected) {
-    process.exit(1);
-  }
-
-  const downloaded = await confirmDownload();
-  if (!downloaded) {
-    process.exit(1);
-  }
-
-  console.log(`\n✅ 歌曲 "${songName}" 下载完成！\n`);
+  console.log(`\n✅ 完成！成功下载 ${successCount} 首歌曲到 ${DOWNLOAD_DIR}\n`);
 }
 
 main().catch(console.error);
