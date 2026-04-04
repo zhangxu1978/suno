@@ -1,0 +1,81 @@
+[
+  {
+    "id": "1775305809345jqerrlo76",
+    "title": "测试歌曲 - 山水情",
+    "style": "中国风传统音乐",
+    "lyric": "《山水情》\n\n主歌：\n青山绿水映眼帘，白云悠悠飘天边\n溪水潺潺流不息，鸟儿欢唱在林间\n\n副歌：\n山水情，情意长，自然美景心中藏\n风轻云淡，心旷神怡，忘却尘世烦与忙",
+    "createdTime": "2026-04-04T12:30:09.345Z",
+    "status": {
+      "downloaded": true,
+      "hasBackground": true,
+      "hasLyric": true,
+      "hasEffects": false,
+      "published": false
+    },
+    "files": {
+      "audio": "",
+      "background": "",
+      "lyric": "D:\\work\\work\\git\\tools\\suno\\lyric\\测试歌曲 - 山水情.txt"
+    },
+    "metadata": {
+      "duration": 0,
+      "size": 0,
+      "format": ""
+    }
+  },
+  {
+    "id": "1775306268611aeg2fbo3z",
+    "title": "《故人霜》",
+    "style": "Chinese folk ballad, slow tempo, guzheng, erhu, piano. Melancholic, spacious, like rain on ancient streets.",
+    "lyric": "[Verse 1]\n青石阶上苔痕又深几寸\n油纸伞下独行的是谁的前尘\n那年你折柳赠我出城门\n说待海棠花开便归来认\n\n[Verse 2]\n渡口渔火明灭了三更\n我煮酒温了一轮又一轮\n江湖是山一程水一程\n你是我笔尖不敢落款的名分\n\n[Chorus]\n故人啊 你可曾回头望\n这长安的月光还照着离殇\n说好并肩看雪落千山莽\n如今只剩我独坐这寒江\n\n[Verse 3]\n客栈说书人拍案话凄凉\n江湖不过是新人换旧伤\n我拂去剑上尘 杯底霜\n却拂不去你眼里那抹霜\n\n[Verse 4]\n后来听闻你策马过潇湘\n身边有个她眉眼如月亮\n我在这头剪烛 西窗凉\n把旧诺言写成诗两行\n\n[Chorus]\n故人啊 你可曾回头望\n这长安的月光还照着离殇\n说好并肩看雪落千山莽\n如今只剩我独坐这寒江\n\n[Bridge]\n若重逢 是在哪座断桥上\n你是否还记得我当年的模样\n风又起 吹皱一池过往\n我们之间隔了整座江湖的浪\n\n[Outro]\n海棠花又落满旧城墙\n这次我没有再等 也没有慌\n只把故事 还给斜阳",
+    "createdTime": "2026-04-04T12:37:48.611Z",
+    "status": {
+      "downloaded": false,
+      "hasBackground": false,
+      "hasLyric": true,
+      "hasEffects": false,
+      "published": false
+    },
+    "files": {
+      "audio": "",
+      "background": "",
+      "lyric": "D:\\work\\work\\git\\tools\\suno\\lyric\\《故人霜》.txt"
+    },
+    "metadata": {
+      "duration": 0,
+      "size": 0,
+      "format": ""
+    }
+  },
+  {
+    "id": "1775307586133b0uy279ks",
+    "title": "月光",
+    "style": "中国风",
+    "lyric": "月光下的思念，如流水般绵长...",
+    "createdTime": "2026-04-04T12:59:46.133Z",
+    "status": {
+      "created": false,
+      "downloaded": false,
+      "hasBackground": false,
+      "hasLyric": true,
+      "hasEffects": false,
+      "published": false
+    },
+    "files": {
+      "audio": "",
+      "background": "",
+      "lyric": "D:\\work\\work\\git\\tools\\suno\\lyric\\月光.txt"
+    },
+    "metadata": {
+      "duration": 0,
+      "size": 0,
+      "format": ""
+    },
+    "sunoData": {
+      "promptRef": "",
+      "styleRef": "",
+      "titleRef": "",
+      "createRef": ""
+    }
+  }
+]

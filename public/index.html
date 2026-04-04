@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suno 歌曲管理系统</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🎵 Suno 歌曲管理系统</h1>
+            <div class="header-actions">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="搜索歌曲名称或风格...">
+                    <button onclick="searchSongs()">🔍</button>
+                </div>
+                <button class="btn-primary" onclick="refreshSongs()">🔄 刷新列表</button>
+                <button class="btn-primary" onclick="openCreateSongModal()">➕ 创建歌曲</button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span class="stat-label">总歌曲数</span>
+                    <span class="stat-value" id="totalSongs">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">已下载</span>
+                    <span class="stat-value" id="downloadedSongs">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">有背景图</span>
+                    <span class="stat-value" id="backgroundSongs">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">已发布</span>
+                    <span class="stat-value" id="publishedSongs">0</span>
+                </div>
+            </div>
+
+            <div class="songs-grid" id="songsGrid">
+                <div class="loading">正在加载歌曲列表...</div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 背景图上传模态框 -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>上传背景图片</h3>
+                <span class="close" onclick="closeUploadModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" id="backgroundFile" accept="image/*" style="display: none;">
+                    <div class="upload-prompt" onclick="document.getElementById('backgroundFile').click()">
+                        <div class="upload-icon">📷</div>
+                        <p>点击选择图片或拖拽到此处</p>
+                        <small>支持 JPG, PNG, GIF 格式</small>
+                    </div>
+                    <div class="upload-preview" id="uploadPreview" style="display: none;">
+                        <img id="previewImage" src="" alt="预览">
+                    </div>
+                </div>
+                <div class="upload-actions">
+                    <button class="btn-secondary" onclick="closeUploadModal()">取消</button>
+                    <button class="btn-primary" onclick="uploadBackground()" id="uploadBtn" disabled>上传</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 歌词查看模态框 -->
+    <div id="lyricModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="lyricTitle">歌词</h3>
+                <span class="close" onclick="closeLyricModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <pre class="lyric-content" id="lyricContent"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

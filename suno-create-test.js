@@ -1,17 +1,18 @@
 /**
- * Suno 中国风音乐一键创作脚本（测试版）
- * 使用硬编码歌词来测试流程
+ * Suno 歌曲创建脚本（支持从JSON数据生成歌曲）
+ * 可以预创建歌曲记录，然后选择性地完成实际创建
  */
 
 const { execSync, exec } = require('child_process');
 const path = require('path');
+const songManager = require('./song-manager');
 
 const CDP_PORT = 48840;
 const SUNO_CREATE_URL = 'https://suno.com/create';
 const SCREENSHOT_DIR = path.dirname(__filename);
 
-// 测试用歌词配置
-const MUSIC_CONFIG = {
+// 默认歌词配置（当没有指定歌曲ID时使用）
+const DEFAULT_MUSIC_CONFIG = {
   prompt: `《山水间》
 作词：AI
 
@@ -64,17 +65,86 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function main() {
+async function waitForText(text, timeout = 30000) {
+  const cmd = `wait_for "${text}" --timeout ${timeout}`;
+  try {
+    const result = ab(cmd);
+    console.log(`   ✅ 等待文本出现: "${text}"`);
+    return true;
+  } catch (error) {
+    console.log(`   ⚠️ 等待文本超时: "${text}"`);
+    return false;
+  }
+}
+
+async function waitForElement(selector, timeout = 30000) {
+  const cmd = `wait_for "${selector}" --timeout ${timeout}`;
+  try {
+    const result = ab(cmd);
+    console.log(`   ✅ 等待元素出现: ${selector}`);
+    return true;
+  } catch (error) {
+    console.log(`   ⚠️ 等待元素超时: ${selector}`);
+    return false;
+  }
+}
+
+// 预创建歌曲记录（不实际在Suno创建）
+function preCreateSong(title, style, lyric) {
   console.log('');
   console.log('🎵 ╔════════════════════════════════════╗');
-  console.log('   ║    Suno 中国风音乐一键创作（测试） ║');
+  console.log('   ║       预创建歌曲记录              ║');
+  console.log('   ╚════════════════════════════════════╝');
+  console.log('');
+
+  const songData = {
+    title: title || DEFAULT_MUSIC_CONFIG.title,
+    style: style || DEFAULT_MUSIC_CONFIG.style,
+    lyric: lyric || DEFAULT_MUSIC_CONFIG.prompt
+  };
+
+  const song = songManager.addSong(songData);
+  
+  console.log(`   📝 标题：${song.title}`);
+  console.log(`   🎸 风格：${song.style}`);
+  console.log(`   🆔 歌曲ID：${song.id}`);
+  console.log(`   📊 歌词长度：${song.lyric.length} 字符`);
+  console.log('');
+  console.log('✅ 歌曲记录已预创建，可以在前端界面选择创建');
+  console.log('');
+
+  return song;
+}
+
+// 从JSON数据创建歌曲（实际在Suno创建）
+async function createSongFromJson(songId) {
+  const song = songManager.getSongById(songId);
+  if (!song) {
+    console.log('❌ 未找到指定的歌曲ID');
+    return false;
+  }
+
+  if (song.status.created) {
+    console.log('⚠️ 该歌曲已在Suno创建过');
+    return false;
+  }
+
+  console.log('');
+  console.log('🎵 ╔════════════════════════════════════╗');
+  console.log(`   ║   创建歌曲: ${song.title}         ║`);
   console.log('   ╚════════════════════════════════════╝');
   console.log('');
 
   // Step 1: 打开创作页面
   console.log('📡 Step 1/5  连接浏览器并打开 Suno 创作页面...');
   ab(`open ${SUNO_CREATE_URL}`);
-  await sleep(30000);
+  
+  // 等待页面加载完成
+  console.log('   ⏳ 等待页面加载...');
+  const pageLoaded = await waitForText('Create song', 45000);
+  if (!pageLoaded) {
+    console.log('   ⚠️ 页面加载超时，继续执行...');
+  }
 
   const currentUrl = ab('get url');
   console.log(`   ✅ 当前页面：${currentUrl}`);
@@ -84,40 +154,77 @@ async function main() {
   const snapshot = ab('snapshot');
 
   // 解析 ref 编号
-  const promptMatch = snapshot.match(/textbox "Write some lyrics[^\"]*" \[ref=(e\d+)\]/);
-  const styleMatch = snapshot.match(/textbox "([^\"]*(?:guitar|whistle|hichiriki|electronic)[^\"]*)" \[ref=(e\d+)\]/);
-  const titleMatch = snapshot.match(/textbox "Song Title[^\"]*" \[ref=(e\d+)\]/);
+  const promptMatch = snapshot.match(/textbox "Write some lyrics[^"]*" \[ref=(e\d+)\]/);
+  const styleMatch = snapshot.match(/textbox "([^"]*(?:guitar|whistle|hichiriki|electronic)[^"]*)" \[ref=(e\d+)\]/);
+  const titleMatch = snapshot.match(/textbox "Song Title[^"]*" \[ref=(e\d+)\]/);
   const createBtnMatch = snapshot.match(/button "Create song"[^\[]*\[(?:disabled, )?ref=(e\d+)\]/);
 
-  const promptRef = promptMatch ? promptMatch[1] : 'e224';
-  const styleRef = styleMatch ? styleMatch[2] : 'e226';
-  const titleRef = titleMatch ? titleMatch[1] : 'e94';
-  const createRef = createBtnMatch ? createBtnMatch[1] : 'e48';
+  const promptRef = promptMatch ? promptMatch[1] : null;
+  const styleRef = styleMatch ? styleMatch[2] : null;
+  const titleRef = titleMatch ? titleMatch[1] : null;
+  const createRef = createBtnMatch ? createBtnMatch[1] : null;
 
   console.log(`   ✅ 提示词框: ${promptRef} | 风格框: ${styleRef} | 标题框: ${titleRef} | 创作按钮: ${createRef}`);
 
-  // Step 3: 填写歌曲标题
+  if (!promptRef || !styleRef || !titleRef || !createRef) {
+    console.log('   ⚠️ 部分元素未找到，使用备用方案...');
+  }
+
+  // Step 3: 填写歌曲信息
   console.log(`🎼 Step 3/5  填写歌曲信息...`);
-  ab(`fill ${titleRef} "${MUSIC_CONFIG.title}"`);
-  console.log(`   📝 标题：${MUSIC_CONFIG.title}`);
+  
+  // 等待标题框出现并填写
+  if (titleRef) {
+    console.log('   ⏳ 等待标题框加载...');
+    const titleReady = await waitForElement(`ref=${titleRef}`, 10000);
+    if (titleReady) {
+      ab(`fill ${titleRef} "${song.title}"`);
+      console.log(`   📝 标题：${song.title}`);
+    }
+  }
   await sleep(500);
 
-  // 填写风格
-  ab(`fill ${styleRef} "${MUSIC_CONFIG.style}"`);
-  console.log(`   🎸 风格：${MUSIC_CONFIG.style}`);
+  // 等待风格框出现并填写
+  if (styleRef) {
+    console.log('   ⏳ 等待风格框加载...');
+    const styleReady = await waitForElement(`ref=${styleRef}`, 10000);
+    if (styleReady) {
+      ab(`fill ${styleRef} "${song.style}"`);
+      console.log(`   🎸 风格：${song.style}`);
+    }
+  }
   await sleep(500);
 
   // 填写歌词/提示词
-  const lyricDir = path.join(SCREENSHOT_DIR, 'lyric');
-  const lyricFile = path.join(lyricDir, `${MUSIC_CONFIG.title}.txt`);
-  require('fs').writeFileSync(lyricFile, MUSIC_CONFIG.prompt, 'utf8');
-  console.log(`   💾 歌词已保存：${lyricFile}`);
-  run(`powershell -Command "Get-Content -Path '${lyricFile}' -Encoding UTF8 | Set-Clipboard"`);
-  ab(`click ${promptRef}`);
-  await sleep(300);
-  ab('clipboard read paste');
-  console.log(`   ✍️  提示词：${MUSIC_CONFIG.prompt.substring(0, 100)}...`);
-  await sleep(1000);
+  if (promptRef) {
+    console.log('   ⏳ 等待歌词框加载...');
+    const promptReady = await waitForElement(`ref=${promptRef}`, 10000);
+    
+    if (promptReady) {
+      ab(`click ${promptRef}`);
+      await sleep(300);
+
+      const lyricDir = path.join(SCREENSHOT_DIR, 'lyric');
+      if (!require('fs').existsSync(lyricDir)) {
+        require('fs').mkdirSync(lyricDir, { recursive: true });
+      }
+
+      const lyricFile = path.join(lyricDir, `lyric-temp-${Date.now()}.txt`);
+      require('fs').writeFileSync(lyricFile, song.lyric, 'utf8');
+
+      const ps1File = path.join(lyricDir, `type-lyric-${Date.now()}.ps1`);
+      const ps1Content = `
+$lyric = Get-Content -Path '${lyricFile.replace(/\\/g, '/')}' -Encoding UTF8 -Raw
+agent-browser --cdp ${CDP_PORT} type ${promptRef} $lyric
+`.trim();
+      require('fs').writeFileSync(ps1File, ps1Content, 'utf8');
+
+      run(`powershell.exe -ExecutionPolicy Bypass -File "${ps1File.replace(/\\/g, '/')}"`);
+
+      console.log(`   ✍️  提示词：${song.lyric.substring(0, 100)}...`);
+      await sleep(1000);
+    }
+  }
 
   // Step 4: 截图确认
   console.log('📸 Step 4/5  截图确认填写内容...');
@@ -129,32 +236,124 @@ async function main() {
   // Step 5: 点击创作按钮
   console.log('🚀 Step 5/5  点击创作按钮...');
 
-  // 重新获取快照，检查按钮是否已激活
-  const snapshot2 = ab('snapshot');
-  const btnEnabled = !snapshot2.includes(`button "Create song" [disabled`);
-
-  if (btnEnabled) {
-    ab(`click ${createRef}`);
+  // 等待创作按钮出现
+  console.log('   ⏳ 等待创作按钮加载...');
+  const createButtonReady = await waitForText('Create song', 10000);
+  
+  if (createButtonReady) {
+    ab('find role button click --name "Create song"');
     console.log('   ✅ 已点击创作按钮！');
+    
+    // 等待创作过程开始
+    console.log('   ⏳ 等待创作开始...');
+    await waitForText('Creating', 15000);
+    
+    await sleep(5000);
   } else {
-    // 按钮还是 disabled，尝试按 Enter 提交
-    console.log('   ⚠️  按钮尚未激活，尝试键盘 Enter 提交...');
-    ab(`press ${promptRef} Enter`);
+    console.log('   ⚠️ 创作按钮未找到，尝试备用方案...');
+    if (createRef) {
+      ab(`click ${createRef}`);
+      console.log('   ✅ 已通过ref点击创作按钮！');
+      await sleep(5000);
+    }
   }
 
-  await sleep(5000);
+  // 更新歌曲创建状态
+  songManager.updateSongCreation(songId, true, {
+    promptRef: promptRef,
+    styleRef: styleRef,
+    titleRef: titleRef,
+    createRef: createRef
+  });
 
-  // 最终截图
   const finalPath = path.join(SCREENSHOT_DIR, 'suno-creating.png');
   ab(`screenshot "${finalPath}"`);
 
   console.log('');
   console.log('🎉 ═══════════════════════════════════════');
-  console.log('   中国风音乐创作已启动！');
+  console.log(`   歌曲 "${song.title}" 创作已启动！`);
   console.log('   请在浏览器中等待音乐生成（约30-60秒）');
   console.log(`   最终截图：${finalPath}`);
+  console.log(`   歌曲状态已更新：已创建`);
   console.log('═══════════════════════════════════════');
   console.log('');
+
+  return true;
+}
+
+async function main() {
+  const args = process.argv.slice(2);
+  
+  if (args.length === 0) {
+    // 没有参数时显示帮助信息
+    console.log('');
+    console.log('🎵 Suno 歌曲创建工具');
+    console.log('═══════════════════════════════════════');
+    console.log('');
+    console.log('用法:');
+    console.log('  node suno-create-test.js [选项]');
+    console.log('');
+    console.log('选项:');
+    console.log('  预创建歌曲记录:');
+    console.log('    --precreate "标题" "风格" "歌词"');
+    console.log('');
+    console.log('  从JSON数据创建歌曲:');
+    console.log('    --create <歌曲ID>');
+    console.log('');
+    console.log('  查看未创建的歌曲:');
+    console.log('    --list-uncreated');
+    console.log('');
+    console.log('示例:');
+    console.log('  预创建歌曲: node suno-create-test.js --precreate "月光" "中国风" "月光下的思念..."');
+    console.log('  创建歌曲: node suno-create-test.js --create 1775305809345jqerrlo76');
+    console.log('  查看未创建列表: node suno-create-test.js --list-uncreated');
+    console.log('');
+    return;
+  }
+
+  const command = args[0];
+
+  if (command === '--precreate') {
+    // 预创建歌曲记录
+    const title = args[1] || DEFAULT_MUSIC_CONFIG.title;
+    const style = args[2] || DEFAULT_MUSIC_CONFIG.style;
+    const lyric = args[3] || DEFAULT_MUSIC_CONFIG.prompt;
+    
+    preCreateSong(title, style, lyric);
+    
+  } else if (command === '--create') {
+    // 从JSON数据创建歌曲
+    const songId = args[1];
+    if (!songId) {
+      console.log('❌ 请提供歌曲ID');
+      return;
+    }
+    
+    await createSongFromJson(songId);
+    
+  } else if (command === '--list-uncreated') {
+    // 查看未创建的歌曲列表
+    const uncreatedSongs = songManager.getUncreatedSongs();
+    
+    console.log('');
+    console.log('📋 未创建的歌曲列表');
+    console.log('═══════════════════════════════════════');
+    console.log('');
+    
+    if (uncreatedSongs.length === 0) {
+      console.log('暂无未创建的歌曲');
+    } else {
+      uncreatedSongs.forEach((song, index) => {
+        console.log(`${index + 1}. ${song.title} (ID: ${song.id})`);
+        console.log(`   风格: ${song.style}`);
+        console.log(`   创建时间: ${new Date(song.createdTime).toLocaleString('zh-CN')}`);
+        console.log('');
+      });
+    }
+    
+  } else {
+    console.log('❌ 未知命令，请使用 --help 查看帮助');
+  }
 }
 
 main().catch(err => {
