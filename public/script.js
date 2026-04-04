@@ -89,6 +89,17 @@ function createSongCard(song) {
         <div class="song-time">${createdTime}</div>
       </div>
       
+      <div class="stats-info">
+        <div class="stat-item">
+          <span class="stat-label">已创建</span>
+          <span class="stat-value">${song.stats ? song.stats.createdCount || 0 : 0}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">已下载</span>
+          <span class="stat-value">${song.stats ? song.stats.downloadedCount || 0 : 0}</span>
+        </div>
+      </div>
+      
       <div class="status-badges">
         ${song.status.created ? '<span class="status-badge created">🎵 已创建</span>' : '<span class="status-badge uncreated">⏳ 未创建</span>'}
         ${song.status.downloaded ? '<span class="status-badge downloaded">✅ 已下载</span>' : ''}
@@ -99,19 +110,23 @@ function createSongCard(song) {
       </div>
       
       <div class="song-actions">
-        ${!song.status.created ? `
+        ${song.status.created ? `
+          <button class="action-btn create" onclick="createSong('${song.id}')">
+            🔄 再次创建
+          </button>
+        ` : `
           <button class="action-btn create" onclick="createSong('${song.id}')">
             🎵 创建歌曲
           </button>
-        ` : ''}
+        `}
+        <button class="action-btn download" onclick="downloadSong('${song.id}')" }>
+          ⬇️ 下载歌曲
+        </button>
         <button class="action-btn upload" onclick="openUploadModal('${song.id}')" ${song.status.hasBackground ? 'disabled' : ''}>
           ${song.status.hasBackground ? '✅ 已上传' : '📷 上传背景'}
         </button>
         <button class="action-btn lyric" onclick="showLyric('${song.id}')" ${!song.status.hasLyric ? 'disabled' : ''}>
           ${song.status.hasLyric ? '📖 查看歌词' : '📝 无歌词'}
-        </button>
-        <button class="action-btn download" onclick="toggleDownloadStatus('${song.id}')" ${!song.status.created ? 'disabled' : ''}>
-          ${song.status.downloaded ? '↩️ 标记未下载' : '⬇️ 标记已下载'}
         </button>
         <button class="action-btn delete" onclick="deleteSong('${song.id}')">🗑️ 删除</button>
       </div>
@@ -291,12 +306,87 @@ async function toggleDownloadStatus(songId) {
     }
 }
 
-// 创建歌曲
+// 打开创建歌曲模态框
+function openCreateSongModal() {
+  document.getElementById('createSongModal').style.display = 'block';
+  document.getElementById('songTitle').value = '';
+  document.getElementById('songStyle').value = '';
+  document.getElementById('songTitle').focus();
+}
+
+// 关闭创建歌曲模态框
+function closeCreateSongModal() {
+  document.getElementById('createSongModal').style.display = 'none';
+}
+
+// 创建新歌曲
+async function createNewSong() {
+  const title = document.getElementById('songTitle').value.trim();
+  const style = document.getElementById('songStyle').value.trim();
+  
+  if (!title) {
+    showError('请输入歌曲主题');
+    return;
+  }
+  
+  if (!style) {
+    showError('请输入音乐风格');
+    return;
+  }
+
+  try {
+    // 预创建歌曲记录
+    const response = await fetch('/api/songs', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        title: title,
+        style: style,
+        lyric: '' // 使用默认歌词
+      })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || '创建失败');
+    }
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      showSuccess('歌曲记录已创建');
+      closeCreateSongModal();
+      
+      // 调用suno-create.js创建歌曲
+      const createResponse = await fetch(`/api/songs/${result.songId}/create`, {
+        method: 'POST'
+      });
+      
+      if (createResponse.ok) {
+        showSuccess('歌曲创建已启动，请等待浏览器完成操作');
+        
+        // 延迟一段时间后重新加载列表
+        setTimeout(() => {
+          loadSongs();
+        }, 5000);
+      }
+    } else {
+      throw new Error(result.error || '创建失败');
+    }
+  } catch (error) {
+    console.error('创建失败:', error);
+    showError('创建失败: ' + error.message);
+  }
+}
+
+// 再次创建歌曲
 async function createSong(songId) {
   const song = songs.find(s => s.id === songId);
   if (!song) return;
 
-  if (!confirm(`确定要在 Suno 创建歌曲"${song.title}"吗？此操作将打开浏览器并自动填写信息。`)) {
+  if (!confirm(`确定要再次在 Suno 创建歌曲"${song.title}"吗？此操作将打开浏览器并自动填写信息。`)) {
     return;
   }
 
@@ -313,7 +403,7 @@ async function createSong(songId) {
     const result = await response.json();
     
     if (result.success) {
-      showSuccess('歌曲创建已启动，请等待浏览器完成操作');
+      showSuccess('歌曲再次创建已启动，请等待浏览器完成操作');
       
       // 延迟一段时间后重新加载列表，让服务器有时间更新状态
       setTimeout(() => {
@@ -325,6 +415,43 @@ async function createSong(songId) {
   } catch (error) {
     console.error('创建失败:', error);
     showError('创建失败: ' + error.message);
+  }
+}
+
+// 下载歌曲
+async function downloadSong(songId) {
+  const song = songs.find(s => s.id === songId);
+  if (!song) return;
+
+  if (!confirm(`确定要下载歌曲"${song.title}"吗？此操作将打开浏览器并自动下载。`)) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/songs/${songId}/download`, {
+      method: 'POST'
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || '下载失败');
+    }
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      showSuccess('歌曲下载已启动，请等待浏览器完成操作');
+      
+      // 延迟一段时间后重新加载列表，让服务器有时间更新状态
+      setTimeout(() => {
+        loadSongs();
+      }, 5000);
+    } else {
+      throw new Error(result.error || '下载失败');
+    }
+  } catch (error) {
+    console.error('下载失败:', error);
+    showError('下载失败: ' + error.message);
   }
 }
 

@@ -6,7 +6,7 @@ const querystring = require('querystring');
 
 const songManager = require('./song-manager');
 
-const PORT = 3000;
+const PORT = 3088;
 const UPLOAD_DIR = path.join(__dirname, 'backgrounds');
 
 // 确保上传目录存在
@@ -65,6 +65,32 @@ function handleApiRequest(req, res) {
     const songs = songManager.getAllSongs();
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(songs));
+    return;
+  }
+
+  // 创建新歌曲
+  if (pathname === '/api/songs' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+    
+    req.on('end', () => {
+      try {
+        const songData = JSON.parse(body);
+        const song = songManager.addSong(songData);
+        
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ 
+          success: true, 
+          songId: song.id,
+          message: '歌曲记录创建成功'
+        }));
+      } catch (error) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: '无效的JSON数据' }));
+      }
+    });
     return;
   }
   
@@ -133,15 +159,15 @@ function handleApiRequest(req, res) {
     const { spawn } = require('child_process');
     const createProcess = spawn('node', ['suno-create-test.js', '--create', songId], {
       cwd: __dirname,
-      stdio: 'pipe'
+      stdio: 'inherit'  // 让子进程的输出直接显示在终端
     });
 
     let output = '';
-    createProcess.stdout.on('data', (data) => {
+    createProcess.stdout && createProcess.stdout.on('data', (data) => {
       output += data.toString();
     });
 
-    createProcess.stderr.on('data', (data) => {
+    createProcess.stderr && createProcess.stderr.on('data', (data) => {
       output += data.toString();
     });
 
@@ -217,15 +243,15 @@ function handleApiRequest(req, res) {
     const { spawn } = require('child_process');
     const downloadProcess = spawn('node', ['suno-download.js', song.title], {
       cwd: __dirname,
-      stdio: 'pipe'
+      stdio: 'inherit'  // 让子进程的输出直接显示在终端
     });
 
     let output = '';
-    downloadProcess.stdout.on('data', (data) => {
+    downloadProcess.stdout && downloadProcess.stdout.on('data', (data) => {
       output += data.toString();
     });
 
-    downloadProcess.stderr.on('data', (data) => {
+    downloadProcess.stderr && downloadProcess.stderr.on('data', (data) => {
       output += data.toString();
     });
 

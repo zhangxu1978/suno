@@ -232,6 +232,33 @@ body {
     color: #c53030;
 }
 
+.stats-info {
+    display: flex;
+    justify-content: space-around;
+    margin: 10px 0;
+    padding: 10px;
+    background: #f7fafc;
+    border-radius: 8px;
+}
+
+.stats-info .stat-item {
+    text-align: center;
+}
+
+.stats-info .stat-label {
+    display: block;
+    font-size: 0.8rem;
+    color: #718096;
+    margin-bottom: 3px;
+}
+
+.stats-info .stat-value {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #4a5568;
+}
+
 .song-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -386,6 +413,38 @@ body {
     justify-content: flex-end;
     gap: 10px;
     margin-top: 20px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cbd5e0;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .lyric-content {

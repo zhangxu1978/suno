@@ -73,16 +73,38 @@
         </div>
     </div>
 
-    <!-- 歌词查看模态框 -->
-    <div id="lyricModal" class="modal">
+    <!-- 创建歌曲模态框 -->
+    <div id="createSongModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="lyricTitle">歌词</h3>
-                <span class="close" onclick="closeLyricModal()">&times;</span>
+                <h3>创建新歌曲</h3>
+                <span class="close" onclick="closeCreateSongModal()">&times;</span>
             </div>
             <div class="modal-body">
-                <pre class="lyric-content" id="lyricContent"></pre>
+                <div class="form-group">
+                    <label for="songTitle">歌曲主题：</label>
+                    <input type="text" id="songTitle" placeholder="请输入歌曲主题">
+                </div>
+                <div class="form-group">
+                    <label for="songStyle">音乐风格：</label>
+                    <input type="text" id="songStyle" placeholder="请输入音乐风格">
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-secondary" onclick="closeCreateSongModal()">取消</button>
+                    <button class="btn-primary" onclick="createNewSong()">确认创建</button>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <!-- 歌词查看模态框 -->
+    <div id="lyricModal" class="modal">
+        <div class="modal-header">
+            <h3 id="lyricTitle">歌词</h3>
+            <span class="close" onclick="closeLyricModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <pre class="lyric-content" id="lyricContent"></pre>
         </div>
     </div>
 

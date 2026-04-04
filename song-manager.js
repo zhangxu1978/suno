@@ -27,12 +27,28 @@ class SongManager {
     try {
       if (fs.existsSync(SONGS_DB_FILE)) {
         const data = fs.readFileSync(SONGS_DB_FILE, 'utf8');
-        return JSON.parse(data);
+        const songs = JSON.parse(data);
+        
+        // 确保所有歌曲都有stats字段（兼容旧数据）
+        songs.forEach(song => {
+          if (!song.stats) {
+            song.stats = {
+              createdCount: 0,
+              downloadedCount: 0
+            };
+          }
+        });
+        
+        console.log(`📊 加载了 ${songs.length} 首歌曲`);
+        return songs;
+      } else {
+        console.log('📊 没有找到歌曲数据文件，创建新的数据文件');
+        return [];
       }
     } catch (error) {
-      console.error('加载歌曲数据失败:', error.message);
+      console.error('❌ 加载歌曲数据失败:', error);
+      return [];
     }
-    return [];
   }
 
   // 保存歌曲数据
