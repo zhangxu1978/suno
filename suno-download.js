@@ -64,13 +64,31 @@ function moveLatestDownload(songName) {
     }))
     .sort((a, b) => b.time - a.time);
 
+  let movedCount = 0;
+  
   if (files.length > 0) {
-    const latest = files[0];
-    const destPath = path.join(DOWNLOAD_DIR, latest.name);
-    fs.renameSync(latest.path, destPath);
-    console.log(`   📂 移动文件: ${latest.name} -> ${DOWNLOAD_DIR}`);
-    return true;
+    // 移动所有音频文件，而不仅仅是最新的一首
+    for (const file of files) {
+      const destPath = path.join(DOWNLOAD_DIR, file.name);
+      
+      // 检查目标文件是否已存在，如果存在则添加时间戳
+      let finalDestPath = destPath;
+      if (fs.existsSync(finalDestPath)) {
+        const ext = path.extname(file.name);
+        const name = path.basename(file.name, ext);
+        const timestamp = Date.now();
+        finalDestPath = path.join(DOWNLOAD_DIR, `${name}_${timestamp}${ext}`);
+      }
+      
+      fs.renameSync(file.path, finalDestPath);
+      console.log(`   📂 移动文件: ${file.name} -> ${DOWNLOAD_DIR}`);
+      movedCount++;
+    }
+    
+    console.log(`   ✅ 成功移动 ${movedCount} 首歌曲`);
+    return movedCount > 0;
   }
+  
   return false;
 }
 
