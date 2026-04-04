@@ -335,7 +335,7 @@ async function createNewSong() {
   }
 
   try {
-    // 预创建歌曲记录
+    // 直接调用suno-create.js创建歌曲
     const response = await fetch('/api/songs', {
       method: 'POST',
       headers: {
@@ -343,8 +343,7 @@ async function createNewSong() {
       },
       body: JSON.stringify({
         title: title,
-        style: style,
-        lyric: '' // 使用默认歌词
+        style: style
       })
     });
     
@@ -356,22 +355,13 @@ async function createNewSong() {
     const result = await response.json();
     
     if (result.success) {
-      showSuccess('歌曲记录已创建');
+      showSuccess('歌曲创建已启动，请等待浏览器完成操作');
       closeCreateSongModal();
       
-      // 调用suno-create.js创建歌曲
-      const createResponse = await fetch(`/api/songs/${result.songId}/create`, {
-        method: 'POST'
-      });
-      
-      if (createResponse.ok) {
-        showSuccess('歌曲创建已启动，请等待浏览器完成操作');
-        
-        // 延迟一段时间后重新加载列表
-        setTimeout(() => {
-          loadSongs();
-        }, 5000);
-      }
+      // 延迟一段时间后重新加载列表
+      setTimeout(() => {
+        loadSongs();
+      }, 5000);
     } else {
       throw new Error(result.error || '创建失败');
     }

@@ -29,11 +29,11 @@
     }
   },
   {
-    "id": "17753120725610mp6e3438",
+    "id": "1775312633281kiaqt5v3h",
     "title": "思念家乡",
     "style": "美国乡村音乐",
     "lyric": "",
-    "createdTime": "2026-04-04T14:14:32.561Z",
+    "createdTime": "2026-04-04T14:23:53.281Z",
     "status": {
       "created": true,
       "downloaded": false,
@@ -57,10 +57,10 @@
       "format": ""
     },
     "sunoData": {
-      "promptRef": "e205",
-      "styleRef": null,
-      "titleRef": "e84",
-      "createRef": "e38"
+      "promptRef": "",
+      "styleRef": "",
+      "titleRef": "",
+      "createRef": ""
     }
   }
 ]

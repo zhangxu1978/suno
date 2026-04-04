@@ -78,14 +78,47 @@ function handleApiRequest(req, res) {
     req.on('end', () => {
       try {
         const songData = JSON.parse(body);
-        const song = songManager.addSong(songData);
         
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ 
-          success: true, 
-          songId: song.id,
-          message: '歌曲记录创建成功'
-        }));
+        // 直接调用suno-create.js，使用AI生成标题和风格
+        const { spawn } = require('child_process');
+        const createProcess = spawn('node', ['suno-create.js', songData.title || '', songData.style || ''], {
+          cwd: __dirname,
+          stdio: 'inherit'
+        });
+
+        let output = '';
+        createProcess.stdout && createProcess.stdout.on('data', (data) => {
+          output += data.toString();
+        });
+
+        createProcess.stderr && createProcess.stderr.on('data', (data) => {
+          output += data.toString();
+        });
+
+        createProcess.on('close', (code) => {
+          if (code === 0) {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ 
+              success: true, 
+              message: '歌曲创建已启动',
+              output: output
+            }));
+          } else {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ 
+              error: '创建过程出错',
+              output: output
+            }));
+          }
+        });
+
+        // 设置超时
+        setTimeout(() => {
+          if (!createProcess.killed) {
+            createProcess.kill();
+          }
+        }, 120000);
+        
       } catch (error) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: '无效的JSON数据' }));
@@ -157,7 +190,7 @@ function handleApiRequest(req, res) {
 
     // 异步调用创建脚本
     const { spawn } = require('child_process');
-    const createProcess = spawn('node', ['suno-create-test.js', '--create', songId], {
+    const createProcess = spawn('node', ['suno-create.js', songId, song.title, song.style], {
       cwd: __dirname,
       stdio: 'inherit'  // 让子进程的输出直接显示在终端
     });
