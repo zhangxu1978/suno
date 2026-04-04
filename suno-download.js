@@ -22,6 +22,30 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+async function waitForText(text, timeout = 30000) {
+  const cmd = `wait_for "${text}" --timeout ${timeout}`;
+  try {
+    const result = ab(cmd);
+    console.log(`   ✅ 等待文本出现: "${text}"`);
+    return true;
+  } catch (error) {
+    console.log(`   ⚠️ 等待文本超时: "${text}"`);
+    return false;
+  }
+}
+
+async function waitForElement(selector, timeout = 30000) {
+  const cmd = `wait_for "${selector}" --timeout ${timeout}`;
+  try {
+    const result = ab(cmd);
+    console.log(`   ✅ 等待元素出现: ${selector}`);
+    return true;
+  } catch (error) {
+    console.log(`   ⚠️ 等待元素超时: ${selector}`);
+    return false;
+  }
+}
+
 function ensureDownloadDir() {
   if (!fs.existsSync(DOWNLOAD_DIR)) {
     fs.mkdirSync(DOWNLOAD_DIR, { recursive: true });
@@ -53,12 +77,27 @@ function moveLatestDownload(songName) {
 async function openLibraryPage() {
   console.log('🌐 打开 Suno Library 页面...');
   ab('open https://suno.com/me');
-  await sleep(3000);
+  
+  // 等待页面加载完成
+  console.log('   ⏳ 等待页面加载...');
+  const pageLoaded = await waitForText('More options', 30000);
+  if (!pageLoaded) {
+    console.log('   ⚠️ 页面加载超时，继续执行...');
+  }
+  
   console.log('   ✅ 页面已加载');
 }
 
 async function findAllSongs(songName) {
   console.log('🔍 Step 1/4  获取页面快照...');
+  
+  // 等待歌曲列表加载
+  console.log('   ⏳ 等待歌曲列表加载...');
+  const songsLoaded = await waitForText('More options', 15000);
+  if (!songsLoaded) {
+    console.log('   ⚠️ 歌曲列表加载超时，继续执行...');
+  }
+  
   const snapshot = ab('snapshot');
 
   const songNameClean = songName.trim();
@@ -94,8 +133,26 @@ async function findAllSongs(songName) {
 
 async function openDownloadMenu(moreOptionsRef) {
   console.log('📂 Step 2/4  打开下载菜单...');
-  ab(`click ${moreOptionsRef}`);
-  await sleep(500);
+  
+  // 等待 More options 按钮出现
+  console.log('   ⏳ 等待 More options 按钮...');
+  const buttonReady = await waitForElement(`ref=${moreOptionsRef}`, 10000);
+  
+  if (buttonReady) {
+    ab(`click ${moreOptionsRef}`);
+    await sleep(500);
+  } else {
+    console.log('   ⚠️ More options 按钮未找到，跳过');
+    return false;
+  }
+
+  // 等待下载菜单出现
+  console.log('   ⏳ 等待下载菜单加载...');
+  const menuLoaded = await waitForText('Download', 10000);
+  
+  if (!menuLoaded) {
+    console.log('   ⚠️ 下载菜单加载超时，尝试继续查找...');
+  }
 
   const snapshot = ab('snapshot');
   const lines = snapshot.split('\n');
@@ -113,9 +170,17 @@ async function openDownloadMenu(moreOptionsRef) {
 
   if (downloadRef) {
     console.log(`   ✅ 找到 Download 按钮: ${downloadRef}`);
-    ab(`click ${downloadRef}`);
-    await sleep(500);
-    return true;
+    
+    // 等待 Download 按钮出现
+    const downloadReady = await waitForElement(`ref=${downloadRef}`, 5000);
+    if (downloadReady) {
+      ab(`click ${downloadRef}`);
+      await sleep(500);
+      return true;
+    } else {
+      console.log('   ⚠️ Download 按钮未找到，跳过');
+      return false;
+    }
   }
 
   console.log(`   ❌ 未找到 Download 按钮`);
@@ -124,6 +189,15 @@ async function openDownloadMenu(moreOptionsRef) {
 
 async function selectMp3Format() {
   console.log('🎵 Step 3/4  选择 MP3 格式...');
+  
+  // 等待格式选择界面出现
+  console.log('   ⏳ 等待格式选择界面...');
+  const formatLoaded = await waitForText('MP3 Audio', 10000);
+  
+  if (!formatLoaded) {
+    console.log('   ⚠️ 格式选择界面加载超时，尝试继续查找...');
+  }
+
   const snapshot = ab('snapshot');
   const lines = snapshot.split('\n');
 
@@ -140,9 +214,17 @@ async function selectMp3Format() {
 
   if (mp3Ref) {
     console.log(`   ✅ 找到 MP3 Audio: ${mp3Ref}`);
-    ab(`click ${mp3Ref}`);
-    await sleep(1000);
-    return true;
+    
+    // 等待 MP3 选项出现
+    const mp3Ready = await waitForElement(`ref=${mp3Ref}`, 5000);
+    if (mp3Ready) {
+      ab(`click ${mp3Ref}`);
+      await sleep(1000);
+      return true;
+    } else {
+      console.log('   ⚠️ MP3 Audio 选项未找到，跳过');
+      return false;
+    }
   }
 
   console.log(`   ❌ 未找到 MP3 Audio 选项`);
@@ -151,6 +233,15 @@ async function selectMp3Format() {
 
 async function confirmDownload() {
   console.log('⬇️  Step 4/4  确认下载...');
+  
+  // 等待下载确认界面出现
+  console.log('   ⏳ 等待下载确认界面...');
+  const confirmLoaded = await waitForText('Download Anyway', 10000);
+  
+  if (!confirmLoaded) {
+    console.log('   ⚠️ 下载确认界面加载超时，检查是否直接下载...');
+  }
+
   const snapshot = ab('snapshot');
 
   if (snapshot.includes('"Download Anyway"')) {
@@ -160,10 +251,18 @@ async function confirmDownload() {
         const match = lines[i].match(/ref=(e\d+)/);
         if (match) {
           console.log(`   ✅ 确认下载: ${match[1]}`);
-          ab(`click ${match[1]}`);
-          await sleep(500);
-          console.log('   ✅ 下载已开始！');
-          return true;
+          
+          // 等待确认按钮出现
+          const confirmReady = await waitForElement(`ref=${match[1]}`, 5000);
+          if (confirmReady) {
+            ab(`click ${match[1]}`);
+            await sleep(500);
+            console.log('   ✅ 下载已开始！');
+            return true;
+          } else {
+            console.log('   ⚠️ 确认按钮未找到，跳过');
+            return false;
+          }
         }
       }
     }
