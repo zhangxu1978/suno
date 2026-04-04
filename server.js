@@ -68,6 +68,26 @@ function handleApiRequest(req, res) {
     return;
   }
 
+  // 重新加载歌曲数据（从文件重新读取）
+  if (pathname === '/api/reload' && req.method === 'POST') {
+    try {
+      const songs = songManager.reloadSongs();
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ 
+        success: true, 
+        message: '数据已重新加载',
+        count: songs.length 
+      }));
+    } catch (error) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ 
+        error: '重新加载数据失败',
+        message: error.message 
+      }));
+    }
+    return;
+  }
+
   // 创建新歌曲
   if (pathname === '/api/songs' && req.method === 'POST') {
     let body = '';

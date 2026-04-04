@@ -62,5 +62,75 @@
       "titleRef": "",
       "createRef": ""
     }
+  },
+  {
+    "id": "1775313403807xfjeeti7l",
+    "title": "秋月酒杯",
+    "style": "Country ballad, acoustic guitar, fiddle, soft harmonica, warm autumn vibe, mid-tempo.",
+    "lyric": "[Verse 1]\nThe autumn moon hangs over fields of gold  \nThe county fair lit up against the cold  \nStrangers smile like they’ve known me all along  \nUnderneath the big tent, I hear a familiar song  \n\n[Verse 2]\nDenim jackets, boots kicked up in dust  \nLaughter rising like a train of trust  \nWooden tables holding steins up high  \nTroubles fading in the amber of the sky  \n\n[Chorus]\nRaise a glass to the harvest moon  \nDance a little closer, we’ll be leaving soon  \nBut tonight the rhythm’s slow and sweet  \nWhere the beer flows cold and the heartbeats meet  \n\n[Verse 3]\nShe walked in with braids and a painted smile  \nLeaned on the fence post, stayed a while  \nSaid “I’ve never been this far from home”  \nI said “Neither have I, but you’re not alone”  \n\n[Verse 4]\nFiddles crying like a train in the pines  \nShe took my hand, said “yours or mine?”  \nWe spun in circles till the stars went dim  \nThe whole world quiet except for him and her and him  \n\n[Chorus]\nRaise a glass to the harvest moon  \nDance a little closer, we’ll be leaving soon  \nBut tonight the rhythm’s slow and sweet  \nWhere the beer flows cold and the heartbeats meet  \n\n[Bridge]\nAnd when the taps run dry and the band packs up  \nI’ll walk her home through the broken cups  \nShe’ll leave her ribbon on my truck’s front seat  \nA little bit of her in the summer heat  \n\n[Outro]\nNow the tent is gone, but the feeling stays  \nJust a faded wristband and a week’s worth of haze  \nSomewhere a jukebox plays a half-known tune  \nAnd I’m still dancing under that harvest moon",
+    "createdTime": "2026-04-04T14:36:43.807Z",
+    "status": {
+      "created": false,
+      "downloaded": false,
+      "hasBackground": false,
+      "hasLyric": true,
+      "hasEffects": false,
+      "published": false
+    },
+    "stats": {
+      "createdCount": 0,
+      "downloadedCount": 0
+    },
+    "files": {
+      "audio": "",
+      "background": "",
+      "lyric": "D:\\work\\work\\git\\tools\\suno\\lyric\\秋月酒杯.txt"
+    },
+    "metadata": {
+      "duration": 0,
+      "size": 0,
+      "format": ""
+    },
+    "sunoData": {
+      "promptRef": "",
+      "styleRef": "",
+      "titleRef": "",
+      "createRef": ""
+    }
+  },
+  {
+    "id": "17753135133829cg41hjwh",
+    "title": "苦杯秋月",
+    "style": "Slow piano ballad, soft strings, melancholic, minor key, sparse acoustic guitar, lonely night vibe.",
+    "lyric": "[Verse 1]\nThe moon spills silver on the empty square  \nA paper cup still standing on the stair  \nStreetlights flicker like a slow heartbeat  \nSomewhere in the distance, lonely taxi feet  \n\n[Verse 2]\nYou left a scarf on my old wooden chair  \nA shade of blue that matches autumn air  \nI trace the stitches with my fingertips  \nHolding onto nothing but the ghost of your lips  \n\n[Chorus]\nAutumn moon, bitter wine  \nEvery sip blurs the border of yours and mine  \nI drink to the silence, I drink to the lie  \nThat you’ll walk through that door before the night dies  \n\n[Verse 3]\nThe bar is closing, but I stay outside  \nA pocket full of change and foolish pride  \nI see your face in every window’s gleam  \nFalling for a future that’s already a dream  \n\n[Verse 4]\nThe clock on the steeple has forgotten the time  \nSo have I, since you made your leaving rhyme  \nI raise my cup to nothing, to everything lost  \nTo the warm bitter taste of what love really cost  \n\n[Chorus]\nAutumn moon, bitter wine  \nEvery sip blurs the border of yours and mine  \nI drink to the silence, I drink to the lie  \nThat you’ll walk through that door before the night dies  \n\n[Bridge]\nAnd if dawn finds me here with this empty glass  \nI’ll tell the sun that the night was too vast  \nToo full of your laughter, too hollow with pain  \nTo let me go sober into the rain  \n\n[Outro]\nAutumn moon… slowly fades  \nOne last sip before the memory fades  \nThe cup is dry now… so am I  \nGoodbye, goodbye, goodbye",
+    "createdTime": "2026-04-04T14:38:33.382Z",
+    "status": {
+      "created": false,
+      "downloaded": false,
+      "hasBackground": false,
+      "hasLyric": true,
+      "hasEffects": false,
+      "published": false
+    },
+    "stats": {
+      "createdCount": 0,
+      "downloadedCount": 0
+    },
+    "files": {
+      "audio": "",
+      "background": "",
+      "lyric": "D:\\work\\work\\git\\tools\\suno\\lyric\\苦杯秋月.txt"
+    },
+    "metadata": {
+      "duration": 0,
+      "size": 0,
+      "format": ""
+    },
+    "sunoData": {
+      "promptRef": "",
+      "styleRef": "",
+      "titleRef": "",
+      "createRef": ""
+    }
   }
 ]

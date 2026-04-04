@@ -166,9 +166,36 @@ async function searchSongs() {
 }
 
 // 刷新歌曲列表
-function refreshSongs() {
+async function refreshSongs() {
     document.getElementById('searchInput').value = '';
-    loadSongs();
+    
+    try {
+        // 先调用重新加载API，强制从文件重新读取数据
+        const reloadResponse = await fetch('/api/reload', {
+            method: 'POST'
+        });
+        
+        if (!reloadResponse.ok) {
+            const errorData = await reloadResponse.json();
+            throw new Error(errorData.error || '重新加载数据失败');
+        }
+        
+        const reloadResult = await reloadResponse.json();
+        
+        if (reloadResult.success) {
+            showSuccess(`数据已刷新，当前有 ${reloadResult.count} 首歌曲`);
+        }
+        
+        // 然后重新加载歌曲列表
+        await loadSongs();
+        
+    } catch (error) {
+        console.error('刷新失败:', error);
+        showError('刷新失败: ' + error.message);
+        
+        // 如果重新加载API失败，仍然尝试普通加载
+        loadSongs();
+    }
 }
 
 // 打开上传模态框

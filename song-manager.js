@@ -284,6 +284,14 @@ class SongManager {
       song.style.toLowerCase().includes(searchTerm)
     );
   }
+
+  // 重新加载歌曲数据（从文件重新读取）
+  reloadSongs() {
+    console.log('🔄 重新加载歌曲数据...');
+    this.songs = this.loadSongs();
+    console.log(`📊 重新加载完成，当前有 ${this.songs.length} 首歌曲`);
+    return this.songs;
+  }
 }
 
 module.exports = new SongManager();
