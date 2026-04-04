@@ -64,6 +64,30 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+async function waitForText(text, timeout = 30000) {
+  const cmd = `wait_for "${text}" --timeout ${timeout}`;
+  try {
+    const result = ab(cmd);
+    console.log(`   ✅ 等待文本出现: "${text}"`);
+    return true;
+  } catch (error) {
+    console.log(`   ⚠️ 等待文本超时: "${text}"`);
+    return false;
+  }
+}
+
+async function waitForElement(selector, timeout = 30000) {
+  const cmd = `wait_for "${selector}" --timeout ${timeout}`;
+  try {
+    const result = ab(cmd);
+    console.log(`   ✅ 等待元素出现: ${selector}`);
+    return true;
+  } catch (error) {
+    console.log(`   ⚠️ 等待元素超时: ${selector}`);
+    return false;
+  }
+}
+
 async function main() {
   const TOPIC = process.argv[2] || '山水';
   const STYLE = process.argv[3] || '中国风';
@@ -102,7 +126,13 @@ async function main() {
   console.log('');
   console.log('📡 Step 1/5  连接浏览器并打开 Suno 创作页面...');
   ab(`open ${SUNO_CREATE_URL}`);
-  await sleep(30000);
+  
+  // 等待页面加载完成
+  console.log('   ⏳ 等待页面加载...');
+  const pageLoaded = await waitForText('Create song', 45000);
+  if (!pageLoaded) {
+    console.log('   ⚠️ 页面加载超时，继续执行...');
+  }
 
   const currentUrl = ab('get url');
   console.log(`   ✅ 当前页面：${currentUrl}`);
@@ -144,41 +174,63 @@ async function main() {
   }
 
   console.log('🎼 Step 3/5  填写歌曲信息...');
+  
+  // 等待标题框出现并填写
   if (titleRef) {
-    ab(`fill ${titleRef} "${musicContent.title}"`);
-    console.log(`   📝 标题：${musicContent.title}`);
+    console.log('   ⏳ 等待标题框加载...');
+    const titleReady = await waitForElement(`ref=${titleRef}`, 10000);
+    if (titleReady) {
+      ab(`fill ${titleRef} "${musicContent.title}"`);
+      console.log(`   📝 标题：${musicContent.title}`);
+    } else {
+      console.log('   ⚠️ 标题框未找到，跳过填写');
+    }
   }
   await sleep(500);
 
+  // 等待风格框出现并填写
   if (styleRef) {
-    ab(`fill ${styleRef} "${musicContent.style}"`);
-    console.log(`   🎸 风格：${musicContent.style}`);
+    console.log('   ⏳ 等待风格框加载...');
+    const styleReady = await waitForElement(`ref=${styleRef}`, 10000);
+    if (styleReady) {
+      ab(`fill ${styleRef} "${musicContent.style}"`);
+      console.log(`   🎸 风格：${musicContent.style}`);
+    } else {
+      console.log('   ⚠️ 风格框未找到，跳过填写');
+    }
   }
   await sleep(500);
 
   if (promptRef) {
-    ab(`click ${promptRef}`);
-    await sleep(300);
+    console.log('   ⏳ 等待歌词框加载...');
+    const promptReady = await waitForElement(`ref=${promptRef}`, 10000);
+    
+    if (promptReady) {
+      ab(`click ${promptRef}`);
+      await sleep(300);
 
-    const lyricDir = path.join(SCREENSHOT_DIR, 'lyric');
-    if (!require('fs').existsSync(lyricDir)) {
-      require('fs').mkdirSync(lyricDir, { recursive: true });
-    }
+      const lyricDir = path.join(SCREENSHOT_DIR, 'lyric');
+      if (!require('fs').existsSync(lyricDir)) {
+        require('fs').mkdirSync(lyricDir, { recursive: true });
+      }
 
-    const lyricFile = path.join(lyricDir, `lyric-temp-${Date.now()}.txt`);
-    require('fs').writeFileSync(lyricFile, musicContent.lyric, 'utf8');
+      const lyricFile = path.join(lyricDir, `lyric-temp-${Date.now()}.txt`);
+      require('fs').writeFileSync(lyricFile, musicContent.lyric, 'utf8');
 
-    const ps1File = path.join(lyricDir, `type-lyric-${Date.now()}.ps1`);
-    const ps1Content = `
+      const ps1File = path.join(lyricDir, `type-lyric-${Date.now()}.ps1`);
+      const ps1Content = `
 $lyric = Get-Content -Path '${lyricFile.replace(/\\/g, '/')}' -Encoding UTF8 -Raw
 agent-browser --cdp ${CDP_PORT} type ${promptRef} $lyric
 `.trim();
-    require('fs').writeFileSync(ps1File, ps1Content, 'utf8');
+      require('fs').writeFileSync(ps1File, ps1Content, 'utf8');
 
-    run(`powershell.exe -ExecutionPolicy Bypass -File "${ps1File.replace(/\\/g, '/')}"`);
+      run(`powershell.exe -ExecutionPolicy Bypass -File "${ps1File.replace(/\\/g, '/')}"`);
 
-    console.log(`   ✍️  提示词：${musicContent.lyric.substring(0, 100)}...`);
-    await sleep(1000);
+      console.log(`   ✍️  提示词：${musicContent.lyric.substring(0, 100)}...`);
+      await sleep(1000);
+    } else {
+      console.log('   ⚠️ 歌词框未找到，跳过填写');
+    }
   }
 
   console.log('📸 Step 4/5  截图确认填写内容...');
@@ -189,10 +241,27 @@ agent-browser --cdp ${CDP_PORT} type ${promptRef} $lyric
 
   console.log('🚀 Step 5/5  点击创作按钮...');
 
-  ab('find role button click --name "Create song"');
-  console.log('   ✅ 已点击创作按钮！');
-
-  await sleep(5000);
+  // 等待创作按钮出现
+  console.log('   ⏳ 等待创作按钮加载...');
+  const createButtonReady = await waitForText('Create song', 10000);
+  
+  if (createButtonReady) {
+    ab('find role button click --name "Create song"');
+    console.log('   ✅ 已点击创作按钮！');
+    
+    // 等待创作过程开始
+    console.log('   ⏳ 等待创作开始...');
+    await waitForText('Creating', 15000);
+    
+    await sleep(5000);
+  } else {
+    console.log('   ⚠️ 创作按钮未找到，尝试备用方案...');
+    if (createRef) {
+      ab(`click ${createRef}`);
+      console.log('   ✅ 已通过ref点击创作按钮！');
+      await sleep(5000);
+    }
+  }
 
   const finalPath = path.join(SCREENSHOT_DIR, 'suno-creating.png');
   ab(`screenshot "${finalPath}"`);
