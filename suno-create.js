@@ -267,18 +267,18 @@ agent-browser --cdp ${CDP_PORT} type ${promptRef} $lyric
   ab(`screenshot "${finalPath}"`);
 
   // 添加歌曲记录到JSON
-  console.log('📝 添加歌曲记录到数据库...');
-  const songRecord = songManager.addSong(musicContent);
-  console.log(`   ✅ 歌曲记录已创建：${songRecord.title} (ID: ${songRecord.id})`);
+  // console.log('📝 添加歌曲记录到数据库...');
+  // const songRecord = songManager.addSong(musicContent);
+  // console.log(`   ✅ 歌曲记录已创建：${songRecord.title} (ID: ${songRecord.id})`);
 
-  console.log('');
-  console.log('🎉 ═══════════════════════════════════════');
-  console.log('   音乐创作已启动！');
-  console.log('   请在浏览器中等待音乐生成（约30-60秒）');
-  console.log(`   最终截图：${finalPath}`);
-  console.log(`   歌曲记录：${songRecord.title} 已保存到数据库`);
-  console.log('═══════════════════════════════════════');
-  console.log('');
+  // console.log('');
+  // console.log('🎉 ═══════════════════════════════════════');
+  // console.log('   音乐创作已启动！');
+  // console.log('   请在浏览器中等待音乐生成（约30-60秒）');
+  // console.log(`   最终截图：${finalPath}`);
+  // console.log(`   歌曲记录：${songRecord.title} 已保存到数据库`);
+  // console.log('═══════════════════════════════════════');
+  // console.log('');
 }
 
 main().catch(err => {
