@@ -132,5 +132,75 @@
       "createdCount": 2,
       "downloadedCount": 4
     }
+  },
+  {
+    "id": "1775823677449ydtbu1f5p",
+    "title": "《草原风》",
+    "style": "Folk ballad with morin khuur, acoustic guitar, light drums; peaceful, vast grassland atmosphere.",
+    "lyric": "# 《草原的风》\n\n**[Verse 1]**\n天边染透了金色的霞光\n牧人的长调随风飘荡\n马蹄踏醒了沉睡的露珠\n远方的山岗披上银霜\n\n**[Verse 2]**\n洁白的云朵亲吻着毡房\n额吉的奶茶煮沸了晨光\n勒勒车走过千年的辙印\n雄鹰盘旋在蓝天上\n\n**[Chorus]**\n草原的风 吹过我的胸膛\n带着青草香 和远方的盼望\n无论走到天涯 还是海角\n那弯月亮 总挂在我心上\n\n**[Verse 3]**\n河水流淌着古老的传说\n篝火照亮了姑娘的脸庞\n马头琴诉说着深情的话\n星星落进了梦乡\n\n**[Bridge]**\n风啊 风啊 请你慢些走\n捎去我的思念到那山的那头\n等到雪融花开 绿野漫山坡\n我会骑着骏马 回到你左右\n\n**[Outro]**\n草原的风 轻轻吹\n吹绿了岁月 吹不散的是谁\n风在唱 风在唱\n一首无字的歌 伴我年年岁岁",
+    "createdTime": "2026-04-10T12:21:17.449Z",
+    "status": {
+      "created": false,
+      "downloaded": false,
+      "hasBackground": false,
+      "hasLyric": true,
+      "hasEffects": false,
+      "published": false
+    },
+    "stats": {
+      "createdCount": 0,
+      "downloadedCount": 0
+    },
+    "files": {
+      "audio": "",
+      "background": "",
+      "lyric": "D:\\work\\work\\git\\tools\\suno\\lyric\\《草原风》.txt"
+    },
+    "metadata": {
+      "duration": 0,
+      "size": 0,
+      "format": ""
+    },
+    "sunoData": {
+      "promptRef": "",
+      "styleRef": "",
+      "titleRef": "",
+      "createRef": ""
+    }
+  },
+  {
+    "id": "177582377423558eyhwanr",
+    "title": "1775823677449ydtbu1f5p",
+    "style": "《草原风》",
+    "lyric": "《山水间》\n作词：AI\n\n主歌 A1：\n青峦叠翠入云间，溪流潺潺绕山巅\n古寺钟声远，林深听松风\n石径通幽处，山花映人面\n心若静如水，天地自悠然\n\n主歌 A2：\n日出东方照峰峦，云雾缭绕似仙境\n飞鸟相与还，蝉鸣林愈静\n竹杖芒鞋轻，踏碎满地影\n不问尘世事，只慕山水情\n\n副歌：\n山水间，心自闲，远离喧嚣天地宽\n风轻云淡，花开花落，任时光流转\n山水间，梦相连，与自然共舞千年\n看尽繁华，归来依然，是最初的眷恋\n\n桥段：\n山高水长，人生路远\n多少过往，尽付笑谈\n不如归去，山水之间\n与天地同眠，与日月为伴\n\n结尾：\n青峦叠翠入云间，溪流潺潺绕山巅\n古寺钟声远，林深听松风\n心若静如水，天地自悠然",
+    "createdTime": "2026-04-10T12:22:54.235Z",
+    "status": {
+      "created": false,
+      "downloaded": false,
+      "hasBackground": false,
+      "hasLyric": true,
+      "hasEffects": false,
+      "published": false
+    },
+    "stats": {
+      "createdCount": 0,
+      "downloadedCount": 0
+    },
+    "files": {
+      "audio": "",
+      "background": "",
+      "lyric": "D:\\work\\work\\git\\tools\\suno\\lyric\\1775823677449ydtbu1f5p.txt"
+    },
+    "metadata": {
+      "duration": 0,
+      "size": 0,
+      "format": ""
+    },
+    "sunoData": {
+      "promptRef": "",
+      "styleRef": "",
+      "titleRef": "",
+      "createRef": ""
+    }
   }
 ]

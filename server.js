@@ -5,6 +5,7 @@ const url = require('url');
 const querystring = require('querystring');
 
 const songManager = require('./song-manager');
+const aiLyric = require('./ai-lyric');
 
 const PORT = 3088;
 const UPLOAD_DIR = path.join(__dirname, 'backgrounds');
@@ -114,53 +115,35 @@ function handleApiRequest(req, res) {
       body += chunk.toString();
     });
     
-    req.on('end', () => {
+    req.on('end', async () => {
       try {
         const songData = JSON.parse(body);
         
-        // 直接调用suno-create.js，使用AI生成标题和风格
-        const { spawn } = require('child_process');
-        const createProcess = spawn('node', ['suno-create.js', songData.title || '', songData.style || ''], {
-          cwd: __dirname,
-          stdio: 'inherit'
+        const topic = songData.topic || '通用主题';
+        const style = songData.style || '中国风';
+        
+        const musicContent = await aiLyric.generateMusicContent(topic, style);
+        
+        const newSong = songManager.addSong({
+          title: musicContent.title,
+          style: musicContent.style,
+          lyric: musicContent.lyric
         });
-
-        let output = '';
-        createProcess.stdout && createProcess.stdout.on('data', (data) => {
-          output += data.toString();
-        });
-
-        createProcess.stderr && createProcess.stderr.on('data', (data) => {
-          output += data.toString();
-        });
-
-        createProcess.on('close', (code) => {
-          if (code === 0) {
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ 
-              success: true, 
-              message: '歌曲创建已启动',
-              output: output
-            }));
-          } else {
-            res.writeHead(500, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ 
-              error: '创建过程出错',
-              output: output
-            }));
-          }
-        });
-
-        // 设置超时
-        setTimeout(() => {
-          if (!createProcess.killed) {
-            createProcess.kill();
-          }
-        }, 120000);
+        
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ 
+          success: true, 
+          message: '歌曲创建成功',
+          song: newSong
+        }));
         
       } catch (error) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: '无效的JSON数据' }));
+        console.error('创建歌曲失败:', error);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ 
+          error: '创建歌曲失败',
+          message: error.message 
+        }));
       }
     });
     return;
