@@ -212,7 +212,7 @@ function handleApiRequest(req, res) {
 
     // 异步调用创建脚本
     const { spawn } = require('child_process');
-    const createProcess = spawn('node', ['suno-create.js', songId, song.title, song.style], {
+    const createProcess = spawn('node', ['suno-create.js', song.title, song.style, song.lyric], {
       cwd: __dirname,
       stdio: 'inherit'  // 让子进程的输出直接显示在终端
     });

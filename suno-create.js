@@ -92,6 +92,7 @@ async function waitForElement(selector, timeout = 30000) {
 async function main() {
   const TOPIC = process.argv[2] || '山水'; // 主题（可选）
   const STYLE = process.argv[3] || '中国风'; // 风格（可选）
+  const LYRIC = process.argv[4] || ''; // 歌词（可选）
 
   console.log('');
   console.log('🎵 ╔════════════════════════════════════╗');
@@ -101,52 +102,26 @@ async function main() {
   
   console.log(`   📝 输入主题：${TOPIC}`);
   console.log(`   🎸 输入风格：${STYLE}`);
+  console.log(`   📝 歌词：${LYRIC ? LYRIC.substring(0, 50) + '...' : '无'}`);
   console.log('');
 
-  let musicContent = {
-    title: DEFAULT_TITLE,
-    style: DEFAULT_STYLE,
-    lyric: DEFAULT_LYRIC
+  const musicContent = {
+    title: TOPIC || DEFAULT_TITLE,
+    style: STYLE || DEFAULT_STYLE,
+    lyric: LYRIC || DEFAULT_LYRIC
   };
 
-  try {
-    // 使用AI生成标题、风格和歌词
-    console.log('🤖 使用AI生成歌曲内容...');
-    const { generateMusicContent } = require('./ai-lyric');
-    const aiContent = await generateMusicContent(TOPIC, STYLE);
-    
-    // 主要使用AI生成的内容，只有当AI生成失败时才使用输入参数
-    musicContent = {
-      title: aiContent.title || TOPIC || DEFAULT_TITLE,
-      style: aiContent.style || STYLE || DEFAULT_STYLE,
-      lyric: aiContent.lyric || DEFAULT_LYRIC
-    };
-    
-    console.log('✅ AI生成成功！');
-    console.log(`   🎵 AI生成标题：${musicContent.title}`);
-    console.log(`   🎸 AI生成风格：${musicContent.style}`);
-    console.log(`   📝 歌词长度：${musicContent.lyric.length} 字符`);
+  console.log(`   🎵 使用标题：${musicContent.title}`);
+  console.log(`   🎸 使用风格：${musicContent.style}`);
+  console.log(`   📝 歌词长度：${musicContent.lyric.length} 字符`);
 
-    const lyricDir = path.join(SCREENSHOT_DIR, 'lyric');
-    if (!require('fs').existsSync(lyricDir)) {
-      require('fs').mkdirSync(lyricDir, { recursive: true });
-    }
-    const lyricFile = path.join(lyricDir, `${musicContent.title}.txt`);
-    require('fs').writeFileSync(lyricFile, musicContent.lyric, 'utf8');
-    console.log(`   💾 歌词已保存：${lyricFile}`);
-  } catch (error) {
-    console.log('⚠️ AI生成失败，使用默认内容');
-    console.log('   错误原因:', error.message);
-    
-    // AI失败时使用输入参数
-    musicContent = {
-      title: TOPIC || DEFAULT_TITLE,
-      style: STYLE || DEFAULT_STYLE,
-      lyric: DEFAULT_LYRIC
-    };
-    console.log(`   🎵 使用标题：${musicContent.title}`);
-    console.log(`   🎸 使用风格：${musicContent.style}`);
+  const lyricDir = path.join(SCREENSHOT_DIR, 'lyric');
+  if (!require('fs').existsSync(lyricDir)) {
+    require('fs').mkdirSync(lyricDir, { recursive: true });
   }
+  const lyricFile = path.join(lyricDir, `${musicContent.title}.txt`);
+  require('fs').writeFileSync(lyricFile, musicContent.lyric, 'utf8');
+  console.log(`   💾 歌词已保存：${lyricFile}`);
 
   console.log('');
   console.log('📡 Step 1/5  连接浏览器并打开 Suno 创作页面...');
