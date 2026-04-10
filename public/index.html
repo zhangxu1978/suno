@@ -15,6 +15,13 @@
                     <input type="text" id="searchInput" placeholder="搜索歌曲名称或风格...">
                     <button onclick="searchSongs()">🔍</button>
                 </div>
+                <div class="date-filter">
+                    <input type="date" id="startDate" placeholder="开始日期">
+                    <span>至</span>
+                    <input type="date" id="endDate" placeholder="结束日期">
+                    <button onclick="filterByDate()">📅 筛选</button>
+                    <button onclick="clearDateFilter()">清除</button>
+                </div>
                 <button class="btn-primary" onclick="refreshSongs()">🔄 刷新列表</button>
                 <button class="btn-primary" onclick="openCreateSongModal()">➕ 创建歌曲</button>
             </div>

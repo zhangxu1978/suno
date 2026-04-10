@@ -17,6 +17,19 @@ function setupEventListeners() {
         }
     });
     
+    // 日期输入框回车事件
+    document.getElementById('startDate').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            filterByDate();
+        }
+    });
+    
+    document.getElementById('endDate').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            filterByDate();
+        }
+    });
+    
     // 文件选择事件
     document.getElementById('backgroundFile').addEventListener('change', function(e) {
         handleFileSelect(e);
@@ -163,6 +176,56 @@ async function searchSongs() {
         console.error('搜索失败:', error);
         showError('搜索失败，请重试');
     }
+}
+
+// 按日期筛选歌曲
+async function filterByDate() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    
+    // 验证日期范围
+    if (startDate && endDate && startDate > endDate) {
+        showError('开始日期不能晚于结束日期');
+        return;
+    }
+    
+    try {
+        const params = new URLSearchParams();
+        if (startDate) params.append('startDate', startDate);
+        if (endDate) params.append('endDate', endDate);
+        
+        const response = await fetch(`/api/filter-by-date?${params.toString()}`);
+        if (!response.ok) throw new Error('日期筛选失败');
+        
+        const filteredSongs = await response.json();
+        songs = filteredSongs;
+        renderSongs();
+        updateStats();
+        
+        // 显示筛选结果信息
+        let message = '显示所有歌曲';
+        if (startDate && endDate) {
+            message = `显示 ${startDate} 至 ${endDate} 的歌曲`;
+        } else if (startDate) {
+            message = `显示 ${startDate} 之后的歌曲`;
+        } else if (endDate) {
+            message = `显示 ${endDate} 之前的歌曲`;
+        }
+        
+        showSuccess(`${message} (共 ${songs.length} 首)`);
+        
+    } catch (error) {
+        console.error('日期筛选失败:', error);
+        showError('日期筛选失败: ' + error.message);
+    }
+}
+
+// 清除日期筛选
+function clearDateFilter() {
+    document.getElementById('startDate').value = '';
+    document.getElementById('endDate').value = '';
+    loadSongs();
+    showSuccess('已清除日期筛选');
 }
 
 // 刷新歌曲列表

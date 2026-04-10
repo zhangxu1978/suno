@@ -88,6 +88,25 @@ function handleApiRequest(req, res) {
     return;
   }
 
+  // 按日期筛选歌曲
+  if (pathname === '/api/filter-by-date' && req.method === 'GET') {
+    const startDate = parsedUrl.query.startDate || '';
+    const endDate = parsedUrl.query.endDate || '';
+    
+    try {
+      const songs = songManager.filterSongsByDate(startDate, endDate);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(songs));
+    } catch (error) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ 
+        error: '日期筛选失败',
+        message: error.message 
+      }));
+    }
+    return;
+  }
+
   // 创建新歌曲
   if (pathname === '/api/songs' && req.method === 'POST') {
     let body = '';

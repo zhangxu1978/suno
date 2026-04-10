@@ -76,6 +76,55 @@ body {
     background: #5a6fd8;
 }
 
+.date-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    border-radius: 25px;
+    padding: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.date-filter input {
+    border: none;
+    padding: 8px 12px;
+    border-radius: 20px;
+    outline: none;
+    font-size: 14px;
+    min-width: 120px;
+}
+
+.date-filter span {
+    color: #718096;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.date-filter button {
+    background: #48bb78;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    color: white;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+
+.date-filter button:hover {
+    background: #38a169;
+}
+
+.date-filter button:last-child {
+    background: #e53e3e;
+}
+
+.date-filter button:last-child:hover {
+    background: #c53030;
+}
+
 .btn-primary {
     background: linear-gradient(135deg, #667eea, #764ba2);
     color: white;

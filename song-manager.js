@@ -292,6 +292,30 @@ class SongManager {
     console.log(`📊 重新加载完成，当前有 ${this.songs.length} 首歌曲`);
     return this.songs;
   }
+
+  // 按日期范围筛选歌曲
+  filterSongsByDate(startDate, endDate) {
+    if (!startDate && !endDate) {
+      return this.songs; // 如果没有日期范围，返回所有歌曲
+    }
+
+    const start = startDate ? new Date(startDate) : null;
+    const end = endDate ? new Date(endDate + 'T23:59:59.999Z') : null; // 包含结束日期的全天
+
+    return this.songs.filter(song => {
+      const songDate = new Date(song.createdTime);
+      
+      let match = true;
+      if (start) {
+        match = match && songDate >= start;
+      }
+      if (end) {
+        match = match && songDate <= end;
+      }
+      
+      return match;
+    });
+  }
 }
 
 module.exports = new SongManager();
