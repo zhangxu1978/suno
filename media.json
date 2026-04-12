@@ -7,12 +7,13 @@
     "waveform": "bars"
   },
   "《草原风》.mp3": {
-    "cover": "1776004935478_cover.png",
+    "cover": "1776005018155_cover.png",
     "title": "《草原风》",
     "description": "",
     "type": 1,
     "waveform": "bars",
-    "published": false
+    "published": 1,
+    "outputFile": "/exports/exported_1776008231073.mp4"
   },
   "《草原风》 (2).mp3": {
     "cover": "bg_1776004629315.jpg"

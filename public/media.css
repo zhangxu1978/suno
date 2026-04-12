@@ -170,6 +170,11 @@ body {
     color: #fff;
 }
 
+.media-published-badge.video-generated {
+    background: #f59e0b;
+    color: #fff;
+}
+
 .media-published-badge.draft {
     background: #6b7280;
     color: #fff;

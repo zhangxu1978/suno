@@ -42,8 +42,8 @@ function renderMediaGrid() {
                 <span class="media-type-badge ${media.type === 1 ? 'song' : 'instrumental'}">
                     ${media.type === 1 ? '歌曲' : '纯音乐'}
                 </span>
-                <span class="media-published-badge ${media.published ? 'published' : 'draft'}">
-                    ${media.published ? '已发布' : '草稿'}
+                <span class="media-published-badge ${getPublishedBadgeClass(media.published)}">
+                    ${getPublishedStatusText(media.published)}
                 </span>
             </div>
             <div class="media-info">
@@ -84,6 +84,18 @@ function refreshMedia() {
     loadMediaList();
 }
 
+function getPublishedBadgeClass(published) {
+    if (published === 2) return 'published';
+    if (published === 1) return 'video-generated';
+    return 'draft';
+}
+
+function getPublishedStatusText(published) {
+    if (published === 2) return '已发布';
+    if (published === 1) return '视频已生成';
+    return '未发布';
+}
+
 function editMedia(filename) {
     const media = mediaList.find(m => m.filename === filename);
     if (!media) return;
@@ -93,7 +105,7 @@ function editMedia(filename) {
     document.getElementById('editDescription').value = media.description || '';
     document.getElementById('editType').value = media.type || 1;
     document.getElementById('editWaveform').value = media.waveform || 'bars';
-    document.getElementById('editPublished').value = media.published ? 'true' : 'false';
+    document.getElementById('editPublished').value = media.published !== undefined ? media.published : 0;
     
     const coverPreview = document.getElementById('coverPreview');
     const coverImage = document.getElementById('coverImage');
@@ -208,7 +220,7 @@ async function saveMediaInfo() {
     const description = document.getElementById('editDescription').value;
     const type = parseInt(document.getElementById('editType').value);
     const waveform = document.getElementById('editWaveform').value;
-    const published = document.getElementById('editPublished').value === 'true';
+    const published = parseInt(document.getElementById('editPublished').value);
 
     const coverFile = document.getElementById('editCoverFile').files[0];
     const lyricFile = document.getElementById('editLyricFile').files[0];
@@ -355,7 +367,7 @@ async function fetchImageFile(filename) {
 }
 
 async function checkExportStatus(taskId, filename) {
-    const maxAttempts = 60;
+    const maxAttempts = 600;
     let attempts = 0;
     
     while (attempts < maxAttempts) {
@@ -367,7 +379,8 @@ async function checkExportStatus(taskId, filename) {
             
             if (result.status === 'completed' || result.status === 'success') {
                 alert('视频生成完成！');
-                await updatePublishedStatus(filename, true);
+                const outputFile = result.outputUrl || result.outputFile || '';
+                await updatePublishedStatus(filename, 1, outputFile);
                 loadMediaList();
                 return;
             } else if (result.status === 'failed' || result.status === 'error') {
@@ -387,7 +400,7 @@ async function checkExportStatus(taskId, filename) {
     alert('视频生成超时，请稍后手动查询状态');
 }
 
-async function updatePublishedStatus(filename, published) {
+async function updatePublishedStatus(filename, published, outputFile = '') {
     const media = mediaList.find(m => m.filename === filename);
     if (!media) return;
 
@@ -398,6 +411,9 @@ async function updatePublishedStatus(filename, published) {
     formData.append('type', media.type || 1);
     formData.append('waveform', media.waveform || 'bars');
     formData.append('published', published);
+    if (outputFile) {
+        formData.append('outputFile', outputFile);
+    }
 
     await fetch('/api/media/update', {
         method: 'POST',
