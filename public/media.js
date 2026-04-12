@@ -119,6 +119,68 @@ function closeEditModal() {
     document.getElementById('editForm').reset();
 }
 
+let currentEditFilename = '';
+
+function generateBackground() {
+    const filename = document.getElementById('editFilename').value;
+    const title = document.getElementById('editTitle').value;
+    const description = document.getElementById('editDescription').value;
+    const type = parseInt(document.getElementById('editType').value);
+    
+    if (!filename) {
+        alert('请先选择要编辑的文件');
+        return;
+    }
+    
+    const btn = document.getElementById('generateBgBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ 正在生成提示词...';
+    
+    fetch('/api/media/generate-prompt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, description, type })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        
+        btn.textContent = '⏳ 正在生成图片...';
+        return fetch('/api/media/generate-background', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ filename, prompt: data.prompt })
+        });
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        
+        const coverImage = document.getElementById('coverImage');
+        const coverPlaceholder = document.getElementById('coverPlaceholder');
+        coverImage.src = `/media/covers/${data.cover}?t=${Date.now()}`;
+        coverImage.style.display = 'block';
+        coverPlaceholder.style.display = 'none';
+        
+        btn.textContent = '✅ 生成成功';
+        setTimeout(() => {
+            btn.disabled = false;
+            btn.textContent = '🎨 AI生成背景';
+        }, 2000);
+        
+        loadMediaList();
+    })
+    .catch(error => {
+        alert('生成背景失败: ' + error.message);
+        btn.disabled = false;
+        btn.textContent = '🎨 AI生成背景';
+    });
+}
+
 document.getElementById('editCoverFile').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -178,8 +240,18 @@ async function saveMediaInfo() {
         }
 
         alert('保存成功');
+        
+        await loadMediaList();
+        
+        const filename = document.getElementById('editFilename').value;
+        const updatedMedia = mediaList.find(m => m.filename === filename);
+        if (updatedMedia && updatedMedia.cover) {
+            document.getElementById('coverImage').src = `/media/covers/${updatedMedia.cover}?t=${Date.now()}`;
+            document.getElementById('coverImage').style.display = 'block';
+            document.getElementById('coverPlaceholder').style.display = 'none';
+        }
+        
         closeEditModal();
-        loadMediaList();
     } catch (error) {
         alert('保存失败: ' + error.message);
     }
@@ -226,7 +298,7 @@ async function generateVideo(filename) {
     }
 
     try {
-        const coverCheck = await fetch(`/media/covers/${media.cover}`, { method: 'HEAD' });
+        const coverCheck = await fetch(`/media/covers/${encodeURIComponent(media.cover)}`, { method: 'HEAD' });
         if (!coverCheck.ok) {
             alert('封面图片不存在，请重新上传');
             return;
@@ -236,7 +308,7 @@ async function generateVideo(filename) {
         return;
     }
 
-    if (!confirm(`确定要生成视频吗？\n音频: ${media.filename}\n封面: ${media.cover}\n波形: ${media.waveform || 'bars'}`)) {
+    if (!confirm(`确定要生成视频吗？\n音频: ${media.filename}\n封面: ${media.cover}\n波形: ${media.waveform === 'bars' ? '柱状波' : media.waveform}`)) {
         return;
     }
 
@@ -244,7 +316,7 @@ async function generateVideo(filename) {
         const formData = new FormData();
         formData.append('audio', await fetchAudioFile(media.filename));
         formData.append('image', await fetchImageFile(media.cover));
-        formData.append('configName', media.waveform || 'bars');
+        formData.append('configName', media.waveform === 'bars' ? '柱状波' : media.waveform);
 
         const response = await fetch('http://localhost:3200/api/export-external', {
             method: 'POST',

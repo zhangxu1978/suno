@@ -113,7 +113,7 @@
     "status": {
       "created": false,
       "downloaded": false,
-      "hasBackground": false,
+      "hasBackground": true,
       "hasLyric": true,
       "hasEffects": false,
       "published": false
@@ -124,7 +124,7 @@
     },
     "files": {
       "audio": "",
-      "background": "",
+      "background": "D:\\work\\work\\git\\tools\\suno\\backgrounds\\《草原风》_bg_1776004629311.jpg",
       "lyric": "D:\\work\\work\\git\\tools\\suno\\lyric\\《草原风》.txt"
     },
     "metadata": {

@@ -351,6 +351,33 @@ function handleApiRequest(req, res) {
       const filename = `upload_${Date.now()}${ext}`;
       const success = songManager.uploadBackground(songId, buffer, filename);
       
+      // 同步到 media/covers 目录
+      try {
+        const song = songManager.getSongById(songId);
+        if (song) {
+          const coverFilename = `bg_${Date.now()}${ext}`;
+          fs.writeFileSync(path.join(MEDIA_COVERS_DIR, coverFilename), buffer);
+          
+          const mediaData = loadMediaData();
+          const audioFiles = fs.readdirSync(MEDIA_DIR).filter(f => {
+            const ext = path.extname(f).toLowerCase();
+            return ['.mp3', '.wav', '.ogg', '.m4a', '.flac', '.aac'].includes(ext);
+          });
+          
+          // 尝试找到匹配的文件名
+          const songTitleClean = (song.title || '').replace(/[<>:"/\\|?*]/g, '_');
+          const matchedFile = audioFiles.find(f => f.includes(songTitleClean) || songTitleClean.includes(f.replace(ext, '').replace('.mp3', '').replace('.wav', '')));
+          
+          if (matchedFile) {
+            if (!mediaData[matchedFile]) mediaData[matchedFile] = {};
+            mediaData[matchedFile].cover = coverFilename;
+            saveMediaData(mediaData);
+          }
+        }
+      } catch (e) {
+        console.error('同步到covers目录失败:', e.message);
+      }
+      
       if (success) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ success: true }));
@@ -537,6 +564,8 @@ function handleApiRequest(req, res) {
         
         const mediaData = loadMediaData();
         
+        console.log('保存媒体信息:', filename, 'cover:', coverFilename, 'title:', title);
+        
         if (!mediaData[filename]) {
           mediaData[filename] = {};
         }
@@ -606,8 +635,8 @@ function handleApiRequest(req, res) {
   }
   
   // 获取封面图片
-  if (pathname.startsWith('/media/covers/') && req.method === 'GET') {
-    const filename = pathname.split('/')[3];
+  if (pathname.startsWith('/media/covers/') && (req.method === 'GET' || req.method === 'HEAD')) {
+    const filename = decodeURIComponent(pathname.split('/')[3]);
     const coverPath = path.join(MEDIA_COVERS_DIR, filename);
     
     if (fs.existsSync(coverPath)) {
@@ -652,6 +681,168 @@ function handleApiRequest(req, res) {
     return;
   }
   
+  // AI生成图片提示词
+  if (pathname === '/api/media/generate-prompt' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+    
+    req.on('end', async () => {
+      try {
+        const data = JSON.parse(body);
+        const { title, description, type } = data;
+        
+        const https = require('https');
+        const http = require('http');
+        const apiUrl = 'http://127.0.0.1:3100/v1/chat/completions';
+        const url = new URL(apiUrl);
+        const protocol = url.protocol === 'https:' ? https : http;
+        
+        const prompt = `你是一位专业的AI绘画提示词工程师。请为以下音乐创作一个AI图片生成提示词。
+
+音乐信息：
+- 标题：${title || '未命名'}
+- 描述：${description || '无'}
+- 类型：${type === 1 ? '歌曲' : '纯音乐'}
+
+要求：
+1. 使用英文描述
+2. 提示词要符合音乐的情感和氛围
+3. 包含艺术风格（如：水墨画、油画、赛博朋克、梦幻、抽象等）
+4. 简洁控制在100字符以内
+5. 不要包含人物
+
+请直接输出提示词，不要解释。`;
+        
+        const payload = {
+          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 200,
+          temperature: 0.8
+        };
+        
+        const options = {
+          hostname: url.hostname,
+          port: url.port,
+          path: url.pathname,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Model-ID': 'bendi',
+            'Content-Length': Buffer.byteLength(JSON.stringify(payload))
+          }
+        };
+        
+        const result = await new Promise((resolve, reject) => {
+          const req = protocol.request(options, (res) => {
+            let data = '';
+            res.on('data', (chunk) => {
+              data += chunk;
+            });
+            res.on('end', () => {
+              try {
+                const result = JSON.parse(data);
+                if (result.choices && result.choices[0] && result.choices[0].message) {
+                  resolve(result.choices[0].message.content.trim());
+                } else {
+                  reject(new Error('AI响应格式错误'));
+                }
+              } catch (e) {
+                reject(e);
+              }
+            });
+          });
+          req.on('error', reject);
+          req.write(JSON.stringify(payload));
+          req.end();
+        });
+        
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ prompt: result }));
+        
+      } catch (error) {
+        console.error('生成提示词失败:', error);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: '生成提示词失败: ' + error.message }));
+      }
+    });
+    return;
+  }
+  
+  // 生成背景图片
+  if (pathname === '/api/media/generate-background' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+    
+    req.on('end', async () => {
+      try {
+        const data = JSON.parse(body);
+        const { filename, prompt } = data;
+        
+        if (!filename || !prompt) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: '缺少必要参数' }));
+          return;
+        }
+        
+        const mediaData = loadMediaData();
+        if (!mediaData[filename]) {
+          mediaData[filename] = {};
+        }
+        
+        const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&nologo=true`;
+        
+        const https = require('https');
+        const imageExt = '.png';
+        const coverFilename = `bg_${Date.now()}${imageExt}`;
+        const coverPath = path.join(MEDIA_COVERS_DIR, coverFilename);
+        
+        await new Promise((resolve, reject) => {
+          const file = fs.createWriteStream(coverPath);
+          https.get(imageUrl, (response) => {
+            if (response.statusCode !== 200) {
+              reject(new Error(`下载失败: ${response.statusCode}`));
+              return;
+            }
+            response.pipe(file);
+            file.on('finish', () => {
+              file.close();
+              resolve();
+            });
+          }).on('error', (err) => {
+            fs.unlink(coverPath, () => {});
+            reject(err);
+          });
+        });
+        
+        if (mediaData[filename].cover) {
+          const oldCoverPath = path.join(MEDIA_COVERS_DIR, mediaData[filename].cover);
+          if (fs.existsSync(oldCoverPath)) {
+            fs.unlinkSync(oldCoverPath);
+          }
+        }
+        
+        mediaData[filename].cover = coverFilename;
+        saveMediaData(mediaData);
+        
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ 
+          success: true, 
+          cover: coverFilename,
+          prompt: prompt
+        }));
+        
+      } catch (error) {
+        console.error('生成背景失败:', error);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: '生成背景失败: ' + error.message }));
+      }
+    });
+    return;
+  }
+  
   // 辅助函数：解析multipart数据
   function parseMultipartData(buffer, boundary) {
     const fields = {};
@@ -686,7 +877,8 @@ function handleApiRequest(req, res) {
           data: binaryContent
         };
       } else if (name) {
-        fields[name] = content;
+        // 解码中文字符
+        fields[name] = Buffer.from(content, 'binary').toString('utf8');
       }
     }
     
