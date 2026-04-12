@@ -53,9 +53,10 @@ function renderMediaGrid() {
                     ${media.lyric ? '📝 有歌词' : ''} | ${formatFileSize(media.size)}
                 </div>
                 <div class="media-actions">
-                    <button class="btn-play" onclick="playMedia('${media.filename}')">▶ 播放</button>
-                    <button class="btn-edit" onclick="editMedia('${media.filename}')">✏️ 编辑</button>
-                    <button class="btn-delete" onclick="deleteMedia('${media.filename}')">🗑️ 删除</button>
+                    <button class="btn-play" onclick="playMedia('${media.filename}')" title="播放">▶</button>
+                    <button class="btn-edit" onclick="editMedia('${media.filename}')" title="编辑">✏️</button>
+                    <button class="btn-video" onclick="generateVideo('${media.filename}')" title="生成视频">🎬</button>
+                    <button class="btn-delete" onclick="deleteMedia('${media.filename}')" title="删除">🗑️</button>
                 </div>
             </div>
         </div>
@@ -210,6 +211,126 @@ function closePlayModal() {
     const audioPlayer = document.getElementById('audioPlayer');
     audioPlayer.pause();
     audioPlayer.src = '';
+}
+
+async function generateVideo(filename) {
+    const media = mediaList.find(m => m.filename === filename);
+    if (!media) {
+        alert('未找到媒体文件');
+        return;
+    }
+
+    if (!media.cover) {
+        alert('请先上传封面图片再生成视频');
+        return;
+    }
+
+    try {
+        const coverCheck = await fetch(`/media/covers/${media.cover}`, { method: 'HEAD' });
+        if (!coverCheck.ok) {
+            alert('封面图片不存在，请重新上传');
+            return;
+        }
+    } catch (e) {
+        alert('封面图片验证失败，请重新上传');
+        return;
+    }
+
+    if (!confirm(`确定要生成视频吗？\n音频: ${media.filename}\n封面: ${media.cover}\n波形: ${media.waveform || 'bars'}`)) {
+        return;
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('audio', await fetchAudioFile(media.filename));
+        formData.append('image', await fetchImageFile(media.cover));
+        formData.append('configName', media.waveform || 'bars');
+
+        const response = await fetch('http://localhost:3200/api/export-external', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const result = await response.json();
+        
+        if (result.taskId) {
+            alert(`视频生成任务已提交！\n任务ID: ${result.taskId}\n\n正在查询状态...`);
+            await checkExportStatus(result.taskId, filename);
+        } else {
+            alert('视频生成任务已提交: ' + JSON.stringify(result));
+        }
+    } catch (error) {
+        alert('生成视频失败: ' + error.message);
+    }
+}
+
+async function fetchAudioFile(filename) {
+    const response = await fetch(`/download/${encodeURIComponent(filename)}`);
+    const blob = await response.blob();
+    return new File([blob], filename, { type: blob.type });
+}
+
+async function fetchImageFile(filename) {
+    const response = await fetch(`/media/covers/${encodeURIComponent(filename)}`);
+    const blob = await response.blob();
+    const ext = filename.split('.').pop();
+    const mimeType = ext === 'png' ? 'image/png' : 'image/jpeg';
+    return new File([blob], filename, { type: mimeType });
+}
+
+async function checkExportStatus(taskId, filename) {
+    const maxAttempts = 60;
+    let attempts = 0;
+    
+    while (attempts < maxAttempts) {
+        try {
+            const response = await fetch(`http://localhost:3200/api/export/status/${taskId}`);
+            const result = await response.json();
+            
+            console.log('导出状态:', result);
+            
+            if (result.status === 'completed' || result.status === 'success') {
+                alert('视频生成完成！');
+                await updatePublishedStatus(filename, true);
+                loadMediaList();
+                return;
+            } else if (result.status === 'failed' || result.status === 'error') {
+                alert('视频生成失败: ' + (result.message || '未知错误'));
+                return;
+            }
+            
+            attempts++;
+            await new Promise(resolve => setTimeout(resolve, 2000));
+        } catch (error) {
+            console.error('查询状态失败:', error);
+            attempts++;
+            await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+    }
+    
+    alert('视频生成超时，请稍后手动查询状态');
+}
+
+async function updatePublishedStatus(filename, published) {
+    const media = mediaList.find(m => m.filename === filename);
+    if (!media) return;
+
+    const formData = new FormData();
+    formData.append('filename', filename);
+    formData.append('title', media.title || '');
+    formData.append('description', media.description || '');
+    formData.append('type', media.type || 1);
+    formData.append('waveform', media.waveform || 'bars');
+    formData.append('published', published);
+
+    await fetch('/api/media/update', {
+        method: 'POST',
+        body: formData
+    });
 }
 
 async function deleteMedia(filename) {
