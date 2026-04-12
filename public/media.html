@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音视频管理</title>
+    <link rel="stylesheet" href="media.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🎬 音视频管理中心</h1>
+            <div class="header-actions">
+                <button class="btn-primary" onclick="refreshMedia()">🔄 刷新列表</button>
+                <button class="btn-secondary" onclick="location.href='index.html'">返回主页面</button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span class="stat-label">总文件数</span>
+                    <span class="stat-value" id="totalFiles">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">音频文件</span>
+                    <span class="stat-value" id="audioFiles">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">视频文件</span>
+                    <span class="stat-value" id="videoFiles">0</span>
+                </div>
+            </div>
+
+            <div class="media-grid" id="mediaGrid">
+                <div class="loading">正在加载文件列表...</div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 编辑模态框 -->
+    <div id="editModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>编辑媒体信息</h3>
+                <span class="close" onclick="closeEditModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="editForm">
+                    <input type="hidden" id="editFilename">
+                    <div class="form-group">
+                        <label for="editTitle">音乐名称：</label>
+                        <input type="text" id="editTitle" placeholder="请输入音乐名称">
+                    </div>
+                    <div class="form-group">
+                        <label for="editDescription">作品描述：</label>
+                        <textarea id="editDescription" rows="3" placeholder="请输入作品描述"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="editCover">封面图片：</label>
+                        <div class="cover-upload-area">
+                            <input type="file" id="editCoverFile" accept="image/*" style="display: none;">
+                            <div class="cover-preview" id="coverPreview">
+                                <img id="coverImage" src="" alt="封面预览">
+                                <div class="cover-placeholder" id="coverPlaceholder">
+                                    <span>📷</span>
+                                    <p>点击上传封面</p>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-secondary" onclick="document.getElementById('editCoverFile').click()">选择图片</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editType">种类：</label>
+                        <select id="editType">
+                            <option value="1">歌曲</option>
+                            <option value="2">纯音乐</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editPublished">是否已发布：</label>
+                        <select id="editPublished">
+                            <option value="false">未发布</option>
+                            <option value="true">已发布</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editLyric">歌词文件：</label>
+                        <div class="lyric-upload-area">
+                            <input type="file" id="editLyricFile" accept=".lrc,.txt" style="display: none;">
+                            <div class="lyric-info" id="lyricInfo">
+                                <span id="lyricFilename">未上传歌词</span>
+                            </div>
+                            <button type="button" class="btn-secondary" onclick="document.getElementById('editLyricFile').click()">选择歌词文件</button>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" onclick="closeEditModal()">取消</button>
+                        <button type="button" class="btn-primary" onclick="saveMediaInfo()">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 播放模态框 -->
+    <div id="playModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 id="playTitle">播放</h3>
+                <span class="close" onclick="closePlayModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="player-container">
+                    <div class="player-cover" id="playerCover">
+                        <img src="" alt="封面">
+                    </div>
+                    <div class="player-info">
+                        <h4 id="playerSongTitle"></h4>
+                        <p id="playerDescription"></p>
+                    </div>
+                    <div class="audio-player">
+                        <audio id="audioPlayer" controls></audio>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="media.js"></script>
+</body>
+</html>

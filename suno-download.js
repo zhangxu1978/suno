@@ -53,40 +53,56 @@ function ensureDownloadDir() {
   }
 }
 
-function moveLatestDownload(songName) {
+function moveLatestDownload(songName, retryCount = 3) {
   const downloadsPath = 'D:\\BaiduNetdiskDownload';
-  const files = fs.readdirSync(downloadsPath)
-    .filter(f => f.endsWith('.mp3') || f.endsWith('.wav'))
-    .map(f => ({
-      name: f,
-      path: path.join(downloadsPath, f),
-      time: fs.statSync(path.join(downloadsPath, f)).mtime.getTime()
-    }))
-    .sort((a, b) => b.time - a.time);
-
-  let movedCount = 0;
   
-  if (files.length > 0) {
-    // 移动所有音频文件，而不仅仅是最新的一首
-    for (const file of files) {
-      const destPath = path.join(DOWNLOAD_DIR, file.name);
+  for (let retry = 0; retry < retryCount; retry++) {
+    try {
+      const files = fs.readdirSync(downloadsPath)
+        .filter(f => f.endsWith('.mp3') || f.endsWith('.wav'))
+        .map(f => ({
+          name: f,
+          path: path.join(downloadsPath, f),
+          time: fs.statSync(path.join(downloadsPath, f)).mtime.getTime()
+        }))
+        .sort((a, b) => b.time - a.time);
+
+      let movedCount = 0;
       
-      // 检查目标文件是否已存在，如果存在则添加时间戳
-      let finalDestPath = destPath;
-      if (fs.existsSync(finalDestPath)) {
-        const ext = path.extname(file.name);
-        const name = path.basename(file.name, ext);
-        const timestamp = Date.now();
-        finalDestPath = path.join(DOWNLOAD_DIR, `${name}_${timestamp}${ext}`);
+      if (files.length > 0) {
+        for (const file of files) {
+          const destPath = path.join(DOWNLOAD_DIR, file.name);
+          
+          let finalDestPath = destPath;
+          if (fs.existsSync(finalDestPath)) {
+            const ext = path.extname(file.name);
+            const name = path.basename(file.name, ext);
+            const timestamp = Date.now();
+            finalDestPath = path.join(DOWNLOAD_DIR, `${name}_${timestamp}${ext}`);
+          }
+          
+          fs.renameSync(file.path, finalDestPath);
+          console.log(`   📂 移动文件: ${file.name} -> ${DOWNLOAD_DIR}`);
+          movedCount++;
+        }
+        
+        console.log(`   ✅ 成功移动 ${movedCount} 首歌曲`);
+        return movedCount > 0;
+      } else if (retry < retryCount - 1) {
+        console.log(`   ⏳ 未找到下载文件，${(retry + 1) * 2}秒后重试...`);
+        sleep(2000).then();
+        continue;
       }
       
-      fs.renameSync(file.path, finalDestPath);
-      console.log(`   📂 移动文件: ${file.name} -> ${DOWNLOAD_DIR}`);
-      movedCount++;
+      return false;
+    } catch (error) {
+      if (retry < retryCount - 1) {
+        console.log(`   ⚠️ 移动文件失败，${(retry + 1) * 2}秒后重试: ${error.message}`);
+        sleep(2000).then();
+      } else {
+        console.log(`   ❌ 移动文件失败: ${error.message}`);
+      }
     }
-    
-    console.log(`   ✅ 成功移动 ${movedCount} 首歌曲`);
-    return movedCount > 0;
   }
   
   return false;
@@ -314,7 +330,7 @@ async function downloadSong(moreOptionsRef, index, total) {
   }
 
   console.log('   ⏳ 等待下载完成...');
-  await sleep(3000);
+  await sleep(8000);
 
   moveLatestDownload();
 

@@ -9,10 +9,22 @@ const aiLyric = require('./ai-lyric');
 
 const PORT = 3088;
 const UPLOAD_DIR = path.join(__dirname, 'backgrounds');
+const MEDIA_DIR = path.join(__dirname, 'download');
+const MEDIA_COVERS_DIR = path.join(__dirname, 'media', 'covers');
+const MEDIA_LYRICS_DIR = path.join(__dirname, 'media', 'lyrics');
+const MEDIA_DB_FILE = path.join(__dirname, 'media.json');
 
 // 确保上传目录存在
 if (!fs.existsSync(UPLOAD_DIR)) {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+}
+
+// 确保媒体相关目录存在
+if (!fs.existsSync(MEDIA_COVERS_DIR)) {
+  fs.mkdirSync(MEDIA_COVERS_DIR, { recursive: true });
+}
+if (!fs.existsSync(MEDIA_LYRICS_DIR)) {
+  fs.mkdirSync(MEDIA_LYRICS_DIR, { recursive: true });
 }
 
 // MIME类型映射
@@ -26,8 +38,74 @@ const mimeTypes = {
   '.jpeg': 'image/jpeg',
   '.gif': 'image/gif',
   '.mp3': 'audio/mpeg',
-  '.wav': 'audio/wav'
+  '.wav': 'audio/wav',
+  '.mp4': 'video/mp4',
+  '.webm': 'video/webm'
 };
+
+// 媒体数据管理
+function loadMediaData() {
+  try {
+    if (fs.existsSync(MEDIA_DB_FILE)) {
+      return JSON.parse(fs.readFileSync(MEDIA_DB_FILE, 'utf8'));
+    }
+    return {};
+  } catch (error) {
+    console.error('加载媒体数据失败:', error);
+    return {};
+  }
+}
+
+function saveMediaData(data) {
+  try {
+    fs.writeFileSync(MEDIA_DB_FILE, JSON.stringify(data, null, 2), 'utf8');
+    return true;
+  } catch (error) {
+    console.error('保存媒体数据失败:', error);
+    return false;
+  }
+}
+
+// 获取媒体文件列表
+function getMediaFiles() {
+  const mediaData = loadMediaData();
+  const supportedExtensions = ['.mp3', '.wav', '.ogg', '.m4a', '.flac', '.aac', '.mp4', '.webm', '.avi', '.mkv'];
+  
+  if (!fs.existsSync(MEDIA_DIR)) {
+    return [];
+  }
+  
+  const files = fs.readdirSync(MEDIA_DIR);
+  const mediaFiles = [];
+  
+  for (const file of files) {
+    const ext = path.extname(file).toLowerCase();
+    if (!supportedExtensions.includes(ext)) continue;
+    
+    const filePath = path.join(MEDIA_DIR, file);
+    const stat = fs.statSync(filePath);
+    
+    const mediaInfo = mediaData[file] || {};
+    
+    mediaFiles.push({
+      filename: file,
+      originalName: file.replace(ext, ''),
+      title: mediaInfo.title || file.replace(ext, ''),
+      description: mediaInfo.description || '',
+      type: mediaInfo.type || 1,
+      published: mediaInfo.published || false,
+      cover: mediaInfo.cover || null,
+      lyric: mediaInfo.lyric || null,
+      size: stat.size,
+      createdTime: stat.birthtime,
+      modifiedTime: stat.mtime,
+      isAudio: ['.mp3', '.wav', '.ogg', '.m4a', '.flac', '.aac'].includes(ext),
+      isVideo: ['.mp4', '.webm', '.avi', '.mkv'].includes(ext)
+    });
+  }
+  
+  return mediaFiles.sort((a, b) => new Date(b.modifiedTime) - new Date(a.modifiedTime));
+}
 
 // 处理静态文件
 function serveStaticFile(filePath, res) {
@@ -119,7 +197,7 @@ function handleApiRequest(req, res) {
       try {
         const songData = JSON.parse(body);
         
-        const topic = songData.topic || '通用主题';
+        const topic = songData.title || '通用主题';
         const style = songData.style || '中国风';
         
         const musicContent = await aiLyric.generateMusicContent(topic, style);
@@ -368,9 +446,9 @@ function handleApiRequest(req, res) {
   }
   
   // 获取音频文件
-  if (pathname.startsWith('/audio/') && req.method === 'GET') {
-    const filename = pathname.split('/')[2];
-    const audioPath = path.join(__dirname, 'download', filename);
+  if ((pathname.startsWith('/audio/') || pathname.startsWith('/download/')) && req.method === 'GET') {
+    const filename = pathname.startsWith('/audio/') ? pathname.split('/')[2] : pathname.split('/')[2];
+    const audioPath = path.join(MEDIA_DIR, decodeURIComponent(filename));
     
     if (fs.existsSync(audioPath)) {
       const stat = fs.statSync(audioPath);
@@ -415,6 +493,203 @@ function handleApiRequest(req, res) {
     return;
   }
   
+  // 获取媒体文件列表
+  if (pathname === '/api/media' && req.method === 'GET') {
+    const files = getMediaFiles();
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(files));
+    return;
+  }
+  
+  // 更新媒体信息（包括封面上传和歌词上传）
+  if (pathname === '/api/media/update' && req.method === 'POST') {
+    const chunks = [];
+    req.on('data', chunk => chunks.push(chunk));
+    req.on('end', () => {
+      const contentType = req.headers['content-type'];
+      
+      if (contentType && contentType.includes('multipart/form-data')) {
+        const boundary = contentType.split('boundary=')[1];
+        const parts = parseMultipartData(Buffer.concat(chunks), boundary);
+        
+        const filename = parts.fields.filename;
+        const title = parts.fields.title;
+        const description = parts.fields.description;
+        const type = parseInt(parts.fields.type) || 1;
+        const published = parts.fields.published === 'true';
+        
+        let coverFilename = null;
+        let lyricFilename = null;
+        
+        if (parts.files.cover) {
+          const ext = path.extname(parts.files.cover.filename).toLowerCase();
+          coverFilename = `${Date.now()}_cover${ext}`;
+          fs.writeFileSync(path.join(MEDIA_COVERS_DIR, coverFilename), parts.files.cover.data);
+        }
+        
+        if (parts.files.lyric) {
+          const ext = path.extname(parts.files.lyric.filename).toLowerCase();
+          lyricFilename = `${Date.now()}_lyric${ext}`;
+          fs.writeFileSync(path.join(MEDIA_LYRICS_DIR, lyricFilename), parts.files.lyric.data);
+        }
+        
+        const mediaData = loadMediaData();
+        
+        if (!mediaData[filename]) {
+          mediaData[filename] = {};
+        }
+        
+        if (title !== undefined) mediaData[filename].title = title;
+        if (description !== undefined) mediaData[filename].description = description;
+        if (type) mediaData[filename].type = type;
+        if (published !== undefined) mediaData[filename].published = published;
+        if (coverFilename) mediaData[filename].cover = coverFilename;
+        if (lyricFilename) mediaData[filename].lyric = lyricFilename;
+        
+        saveMediaData(mediaData);
+        
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      } else {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: '无效的请求格式' }));
+      }
+    });
+    return;
+  }
+  
+  // 删除媒体文件
+  if (pathname.startsWith('/api/media/delete') && req.method === 'DELETE') {
+    const filename = parsedUrl.query.filename;
+    
+    if (!filename) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: '缺少文件名' }));
+      return;
+    }
+    
+    const filePath = path.join(MEDIA_DIR, filename);
+    
+    if (!fs.existsSync(filePath)) {
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: '文件不存在' }));
+      return;
+    }
+    
+    try {
+      fs.unlinkSync(filePath);
+      
+      const mediaData = loadMediaData();
+      if (mediaData[filename]) {
+        if (mediaData[filename].cover) {
+          const coverPath = path.join(MEDIA_COVERS_DIR, mediaData[filename].cover);
+          if (fs.existsSync(coverPath)) fs.unlinkSync(coverPath);
+        }
+        if (mediaData[filename].lyric) {
+          const lyricPath = path.join(MEDIA_LYRICS_DIR, mediaData[filename].lyric);
+          if (fs.existsSync(lyricPath)) fs.unlinkSync(lyricPath);
+        }
+        delete mediaData[filename];
+        saveMediaData(mediaData);
+      }
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true }));
+    } catch (error) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: '删除失败: ' + error.message }));
+    }
+    return;
+  }
+  
+  // 获取封面图片
+  if (pathname.startsWith('/media/covers/') && req.method === 'GET') {
+    const filename = pathname.split('/')[3];
+    const coverPath = path.join(MEDIA_COVERS_DIR, filename);
+    
+    if (fs.existsSync(coverPath)) {
+      const stat = fs.statSync(coverPath);
+      const ext = path.extname(coverPath).toLowerCase();
+      const contentType = mimeTypes[ext] || 'application/octet-stream';
+      
+      res.writeHead(200, {
+        'Content-Type': contentType,
+        'Content-Length': stat.size
+      });
+      
+      const readStream = fs.createReadStream(coverPath);
+      readStream.pipe(res);
+    } else {
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.end('封面图片未找到');
+    }
+    return;
+  }
+  
+  // 获取歌词文件
+  if (pathname.startsWith('/media/lyrics/') && req.method === 'GET') {
+    const filename = pathname.split('/')[3];
+    const lyricPath = path.join(MEDIA_LYRICS_DIR, filename);
+    
+    if (fs.existsSync(lyricPath)) {
+      const stat = fs.statSync(lyricPath);
+      const contentType = 'text/plain; charset=utf-8';
+      
+      res.writeHead(200, {
+        'Content-Type': contentType,
+        'Content-Length': stat.size
+      });
+      
+      const readStream = fs.createReadStream(lyricPath);
+      readStream.pipe(res);
+    } else {
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.end('歌词文件未找到');
+    }
+    return;
+  }
+  
+  // 辅助函数：解析multipart数据
+  function parseMultipartData(buffer, boundary) {
+    const fields = {};
+    const files = {};
+    const parts = buffer.toString('binary').split('--' + boundary);
+    
+    for (const part of parts) {
+      if (!part || !part.includes('\r\n\r\n')) continue;
+      
+      const headerEnd = part.indexOf('\r\n\r\n');
+      const headers = part.substring(0, headerEnd);
+      const content = part.substring(headerEnd + 4, part.length - 2);
+      
+      let name = null;
+      let filename = null;
+      
+      const nameMatch = headers.match(/name="([^"]+)"/);
+      if (nameMatch) name = nameMatch[1];
+      
+      const filenameMatch = headers.match(/filename="([^"]+)"/);
+      if (filenameMatch) filename = filenameMatch[1];
+      
+      if (filename) {
+        const contentTypeMatch = headers.match(/Content-Type:\s*([^\r\n]+)/);
+        const contentType = contentTypeMatch ? contentTypeMatch[1] : 'application/octet-stream';
+        
+        const binaryContent = Buffer.from(content, 'binary');
+        
+        files[name] = {
+          filename: filename,
+          contentType: contentType,
+          data: binaryContent
+        };
+      } else if (name) {
+        fields[name] = content;
+      }
+    }
+    
+    return { fields, files };
+  }
+  
   res.writeHead(404, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ error: 'API端点未找到' }));
 }
@@ -425,7 +700,7 @@ const server = http.createServer((req, res) => {
   const pathname = parsedUrl.pathname;
   
   // API请求
-  if (pathname.startsWith('/api/') || pathname.startsWith('/audio/') || pathname.startsWith('/backgrounds/')) {
+  if (pathname.startsWith('/api/') || pathname.startsWith('/audio/') || pathname.startsWith('/backgrounds/') || pathname.startsWith('/media/') || pathname.startsWith('/download/')) {
     handleApiRequest(req, res);
     return;
   }

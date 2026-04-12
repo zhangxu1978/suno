@@ -1,5 +1,110 @@
 [
   {
+    "id": "1775952436563pu8ws3ey8",
+    "title": "嘎嘎小企鹅",
+    "style": "Acoustic folk lullaby with ukulele, glockenspiel, soft percussion. Warm, playful and dreamy.",
+    "lyric": "# 《我是姑姑嘎嘎的小企鹅》\n\n**[Verse 1]**\n冰山上滚下一团雪绒花\n摇摇摆摆踩出小脚丫\n姑姑在岸边喊“嘎嘎嘎”\n谁家宝宝披着黑褂褂\n\n**[Chorus]**\n我是姑姑嘎嘎的小企鹅\n肚皮白白像月亮弯弯\n踩着滑梯溜进海浪花\n叼条小鱼送给姑姑尝\n\n**[Verse 2]**\n风儿吹起白眉毛霜\n我裹紧绒毛的厚衣裳\n姑姑数着队伍两三行\n数到我这只最会捉迷藏\n\n**[Chorus]**\n我是姑姑嘎嘎的小企鹅\n翅膀拍拍学星星眨眼\n跌倒也不哭 打个滚儿\n雪地印下一串小花瓣\n\n**[Bridge]**\n月亮升起来 冰屋亮堂堂\n姑姑的歌声暖洋洋\n“睡吧睡吧 我的小波浪\n明天带你去追南极光”\n\n**[Outro]**\n嘎嘎 嘎嘎 睡着了\n梦里孵出一颗亮闪闪的\n——蛋壳响",
+    "createdTime": "2026-04-12T00:07:16.563Z",
+    "status": {
+      "created": false,
+      "downloaded": false,
+      "hasBackground": true,
+      "hasLyric": true,
+      "hasEffects": false,
+      "published": false
+    },
+    "stats": {
+      "createdCount": 0,
+      "downloadedCount": 0
+    },
+    "files": {
+      "audio": "",
+      "background": "D:\\work\\work\\git\\tools\\suno\\backgrounds\\嘎嘎小企鹅_bg_1775992052245.jpg",
+      "lyric": "D:\\work\\work\\git\\tools\\suno\\lyric\\嘎嘎小企鹅.txt"
+    },
+    "metadata": {
+      "duration": 0,
+      "size": 0,
+      "format": ""
+    },
+    "sunoData": {
+      "promptRef": "",
+      "styleRef": "",
+      "titleRef": "",
+      "createRef": ""
+    }
+  },
+  {
+    "id": "1775951810011jwzcdc7k4",
+    "title": "小纸船",
+    "style": "Acoustic folk pop with ukulele, soft piano, and gentle bells. Warm, whimsical, and tender lullaby atmosphere.",
+    "lyric": "[Verse 1]\n小纸船飘在雨后水洼\n蚂蚁乘着树叶去远方\n云朵变成棉花糖模样\n风铃摇醒午后的窗\n\n[Verse 2]\n蜗牛背着房子慢慢逛\n蒲公英撑开白色小伞\n萤火虫点亮玻璃罐\n月亮爬上桂花树梢上\n\n[Chorus]\n星星眨着眼睛问\n今天你有没有笑呀\n泥土里钻出嫩芽\n那是春天在挠痒痒\n\n[Verse 3]\n旧秋千荡过矮矮围墙\n露珠里藏着小彩虹桥\n石头缝蚂蚁搬米粒\n晚霞染红外婆的蒲扇\n\n[Bridge]\n蝴蝶停在作业本角落\n铅笔画出会飞的鱼\n如果童话也有保质期\n就把它折进纸飞机里\n\n[Outro]\n啦啦啦 蜗牛壳转圈圈\n啦啦啦 蒲公英去旅行\n世界是个软软的枕头\n梦里开出七色花",
+    "createdTime": "2026-04-11T23:56:50.011Z",
+    "status": {
+      "created": false,
+      "downloaded": false,
+      "hasBackground": false,
+      "hasLyric": true,
+      "hasEffects": false,
+      "published": false
+    },
+    "stats": {
+      "createdCount": 0,
+      "downloadedCount": 0
+    },
+    "files": {
+      "audio": "",
+      "background": "",
+      "lyric": "D:\\work\\work\\git\\tools\\suno\\lyric\\小纸船.txt"
+    },
+    "metadata": {
+      "duration": 0,
+      "size": 0,
+      "format": ""
+    },
+    "sunoData": {
+      "promptRef": "",
+      "styleRef": "",
+      "titleRef": "",
+      "createRef": ""
+    }
+  },
+  {
+    "id": "1775833591279gkptqhvqe",
+    "title": "《天涯一诺》",
+    "style": "Cinematic Chinese folk metal, erhu & guzheng, dark epic atmosphere, slow build.",
+    "lyric": "# 《红尘一醉》\n\n**[Verse 1]**\n残剑埋在半山荒草间\n烈酒浇透旧时誓言\n马蹄踏碎多少圆月\n谁在断崖边弹断琴弦\n\n**[Verse 2]**\n青衫染了风霜十年\n孤鸿飞过无人街前\n灯火阑珊处回头一眼\n恩怨如雪落满双肩\n\n**[Chorus]**\n天地为局 谁是执棋人\n笑我疯癫 笑我痴念深\n一壶浊酒 敬这江湖冷\n红尘深处 醉倒英雄魂\n\n**[Verse 3]**\n破庙夜雨敲醒从前\n掌心纹路刻着离别\n不问来路不问归程\n只把这江湖走成诗篇\n\n**[Bridge]**\n若你问我何为侠\n不过是一诺作天涯\n生死一笑风吹沙\n肝胆照月明 何惧白发\n\n**[Chorus]**\n天地为局 谁是执棋人\n笑我疯癫 笑我痴念深\n一壶浊酒 敬这江湖冷\n红尘深处 醉倒英雄魂\n\n**[Outro]**\n剑已锈 酒已空\n青山依旧 几度夕阳红\n江湖远 人无踪\n只剩那轮月 照千古风",
+    "createdTime": "2026-04-10T15:06:31.279Z",
+    "status": {
+      "created": false,
+      "downloaded": false,
+      "hasBackground": false,
+      "hasLyric": true,
+      "hasEffects": false,
+      "published": false
+    },
+    "stats": {
+      "createdCount": 0,
+      "downloadedCount": 1
+    },
+    "files": {
+      "audio": "",
+      "background": "",
+      "lyric": "D:\\work\\work\\git\\tools\\suno\\lyric\\《天涯一诺》.txt"
+    },
+    "metadata": {
+      "duration": 0,
+      "size": 0,
+      "format": ""
+    },
+    "sunoData": {
+      "promptRef": "",
+      "styleRef": "",
+      "titleRef": "",
+      "createRef": ""
+    }
+  },
+  {
     "id": "1775823677449ydtbu1f5p",
     "title": "《草原风》",
     "style": "Folk ballad with morin khuur, acoustic guitar, light drums; peaceful, vast grassland atmosphere.",
@@ -15,7 +120,7 @@
     },
     "stats": {
       "createdCount": 0,
-      "downloadedCount": 0
+      "downloadedCount": 1
     },
     "files": {
       "audio": "",
