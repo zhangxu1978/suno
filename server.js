@@ -93,6 +93,7 @@ function getMediaFiles() {
       title: mediaInfo.title || file.replace(ext, ''),
       description: mediaInfo.description || '',
       type: mediaInfo.type || 1,
+      waveform: mediaInfo.waveform || 'bars',
       published: mediaInfo.published || false,
       cover: mediaInfo.cover || null,
       lyric: mediaInfo.lyric || null,
@@ -516,6 +517,7 @@ function handleApiRequest(req, res) {
         const title = parts.fields.title;
         const description = parts.fields.description;
         const type = parseInt(parts.fields.type) || 1;
+        const waveform = parts.fields.waveform || 'bars';
         const published = parts.fields.published === 'true';
         
         let coverFilename = null;
@@ -542,6 +544,7 @@ function handleApiRequest(req, res) {
         if (title !== undefined) mediaData[filename].title = title;
         if (description !== undefined) mediaData[filename].description = description;
         if (type) mediaData[filename].type = type;
+        if (waveform) mediaData[filename].waveform = waveform;
         if (published !== undefined) mediaData[filename].published = published;
         if (coverFilename) mediaData[filename].cover = coverFilename;
         if (lyricFilename) mediaData[filename].lyric = lyricFilename;

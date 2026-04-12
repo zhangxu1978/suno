@@ -91,6 +91,7 @@ function editMedia(filename) {
     document.getElementById('editTitle').value = media.title || '';
     document.getElementById('editDescription').value = media.description || '';
     document.getElementById('editType').value = media.type || 1;
+    document.getElementById('editWaveform').value = media.waveform || 'bars';
     document.getElementById('editPublished').value = media.published ? 'true' : 'false';
     
     const coverPreview = document.getElementById('coverPreview');
@@ -143,6 +144,7 @@ async function saveMediaInfo() {
     const title = document.getElementById('editTitle').value;
     const description = document.getElementById('editDescription').value;
     const type = parseInt(document.getElementById('editType').value);
+    const waveform = document.getElementById('editWaveform').value;
     const published = document.getElementById('editPublished').value === 'true';
 
     const coverFile = document.getElementById('editCoverFile').files[0];
@@ -153,6 +155,7 @@ async function saveMediaInfo() {
     formData.append('title', title);
     formData.append('description', description);
     formData.append('type', type);
+    formData.append('waveform', waveform);
     formData.append('published', published);
 
     if (coverFile) {
