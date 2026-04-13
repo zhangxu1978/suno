@@ -635,6 +635,81 @@ function handleApiRequest(req, res) {
     }
     return;
   }
+
+  // 发布视频到抖音
+  if (pathname === '/api/media/publish' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', async () => {
+      let data;
+      try {
+        data = JSON.parse(body);
+      } catch (e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: '无效的JSON' }));
+        return;
+      }
+
+      const { filename } = data;
+      if (!filename) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: '缺少文件名' }));
+        return;
+      }
+
+      const mediaData = loadMediaData();
+      const mediaInfo = mediaData[filename];
+
+      if (!mediaInfo) {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: '媒体信息不存在' }));
+        return;
+      }
+
+      if (!mediaInfo.outputFile) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: '视频文件不存在，请先生成视频' }));
+        return;
+      }
+
+      const videoPath = "D:/work/work/git/tools/seeSound/" + mediaInfo.outputFile;
+      if (!fs.existsSync(videoPath)) {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: '视频文件不存在: ' + videoPath }));
+        return;
+      }
+
+      try {
+        const title = mediaInfo.title || '';
+        const description = mediaInfo.description || '';
+        
+        const psCommand = `powershell.exe -ExecutionPolicy Bypass -File "D:\\work\\work\\git\\tools\\seeSound\\scripts\\douyin-upload.ps1" -FilePath "${videoPath}" -Title "${title}" -Description "${description}"`;
+        console.log('执行发布命令:', psCommand);
+
+        const { exec } = require('child_process');
+        exec(psCommand, { maxBuffer: 1024 * 1024 * 10 }, (error, stdout, stderr) => {
+          if (error) {
+            console.error('发布失败:', error);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: '发布失败: ' + error.message }));
+            return;
+          }
+
+          console.log('发布输出:', stdout);
+          mediaData[filename].published = 2;
+          saveMediaData(mediaData);
+
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: true, message: '发布成功' }));
+        });
+      } catch (error) {
+        console.error('发布失败:', error);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: '发布失败: ' + error.message }));
+      }
+    });
+    return;
+  }
   
   // 获取封面图片
   if (pathname.startsWith('/media/covers/') && (req.method === 'GET' || req.method === 'HEAD')) {

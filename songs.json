@@ -1,5 +1,110 @@
 [
   {
+    "id": "17760845124940aserdhwh",
+    "title": "《咕咕嘎嘎》",
+    "style": "Cheerful children's march with glockenspiel, handbells, light piano, and gentle percussion; playful waddling vibe.",
+    "lyric": "[Verse 1]\n清早起床 排成一行行\n黑西装白肚皮 闪闪发亮\n小翅膀摆啊摆 走在冰面上\n圆圆肚子摇啊摇 像颗棉花糖\n\n[Verse 2]\n左脚抬高 踩着雪花响\n右脚落下 啪嗒啪嗒晃一晃\n前面那个小笨蛋 突然滑一跤\n后面的跟着摔 滚成雪球圆圆\n\n[Chorus]\n咕咕嘎嘎 咕咕嘎嘎\n我们是摇摆的小企鹅呀\n冰上滑 水里划\n扑通一声跳下去 溅起水花花\n咕咕嘎嘎 咕咕嘎嘎\n爸爸妈妈喊着快回家呀\n扭一扭 转个圈\n排好队伍摇摇摆摆 再出发\n\n[Verse 3]\n太阳落山 影子拉得长\n小小脚丫印 留在雪地上\n抬头看看天 星星刚开始亮\n呼出一口白气 打个喷嚏响\n\n[Verse 4]\n钻进怀里 绒毛暖洋洋\n听着海浪声 轻轻摇荡\n梦里又回到 那片亮晶晶的冰道\n摇摇摆摆走着 永远不慌忙\n\n[Bridge]\n如果有一天 你看见雪山上\n一群小绅士 走路晃啊晃\n请别笑它们 笨拙的模样\n它们在跳 最认真的舞蹈\n\n[Chorus]\n咕咕嘎嘎 咕咕嘎嘎\n我们是快乐的小企鹅呀\n迎着风 追着光\n摇摇摆摆走在 回家的方向\n咕咕嘎嘎 咕咕嘎嘎\n明天还要一起出来玩耍\n手拉手 转个圈\n把最可爱的脚印 留给冰的海洋\n\n[Outro]\n咕咕嘎嘎 咕咕\n嘎嘎咕咕 嘎\n晚安啦 小企鹅\n明天见呀",
+    "createdTime": "2026-04-13T12:48:32.494Z",
+    "status": {
+      "created": false,
+      "downloaded": false,
+      "hasBackground": false,
+      "hasLyric": true,
+      "hasEffects": false,
+      "published": false
+    },
+    "stats": {
+      "createdCount": 0,
+      "downloadedCount": 0
+    },
+    "files": {
+      "audio": "",
+      "background": "",
+      "lyric": "D:\\work\\work\\git\\tools\\suno\\lyric\\《咕咕嘎嘎》.txt"
+    },
+    "metadata": {
+      "duration": 0,
+      "size": 0,
+      "format": ""
+    },
+    "sunoData": {
+      "promptRef": "",
+      "styleRef": "",
+      "titleRef": "",
+      "createRef": ""
+    }
+  },
+  {
+    "id": "1776083656515j4gwlgt2r",
+    "title": "客舟听雨",
+    "style": "Melancholic Chinese folk with guzheng, xiao, and rain sounds. Nostalgic, cinematic atmosphere.",
+    "lyric": "《客舟听雨》\n\n[Verse 1]\n檐角铜铃摇落三更雨\n青石巷尾苔痕又深几许\n邻家阿婆捣衣声断续\n恍惚是 娘亲唤我乳名句\n\n[Verse 2]\n去年别时栽下庭前橘\n如今应挂满灯笼红似许\n渡口老柳又添新轮絮\n可记得 当年系舟绳结绿\n\n[Chorus]\n雁字回时 锦书难托千里驿\n月满西楼 独照客袍霜满地\n家山应在 烟波尽头数峰西\n归期总被 江湖夜雨涨秋池\n\n[Verse 3]\n梦中常走横塘石板堤\n醒来唯见桅灯摇碎星子\n行囊里娘纳的千层底\n针脚密 缠着故乡经纬迹\n\n[Bridge]\n橹声轧轧碾碎江心月\n何处笛音吹落梅花如雪\n且将家信折作纸鸢叠\n待东君 替我寄往旧巷陌\n\n[Verse 4]\n蓑衣兜满异乡的霜粒\n压弯竹篙恰似娘亲背脊\n远山忽传子规啼彻夜\n不如归 声声啄痛游子意\n\n[Outro]\n借问渔火 明朝可是归期\n寒山钟响 惊起芦花纷飞\n恍见炊烟 缠着娘亲银髻\n而故乡啊 还在千山之外 等我回去",
+    "createdTime": "2026-04-13T12:34:16.515Z",
+    "status": {
+      "created": false,
+      "downloaded": false,
+      "hasBackground": false,
+      "hasLyric": true,
+      "hasEffects": false,
+      "published": false
+    },
+    "stats": {
+      "createdCount": 0,
+      "downloadedCount": 0
+    },
+    "files": {
+      "audio": "",
+      "background": "",
+      "lyric": "D:\\work\\work\\git\\tools\\suno\\lyric\\客舟听雨.txt"
+    },
+    "metadata": {
+      "duration": 0,
+      "size": 0,
+      "format": ""
+    },
+    "sunoData": {
+      "promptRef": "",
+      "styleRef": "",
+      "titleRef": "",
+      "createRef": ""
+    }
+  },
+  {
+    "id": "1776082744907gsr4bnis9",
+    "title": "《泥路归人》",
+    "style": "Warm acoustic country with gentle banjo, steel guitar, and rustic porch ambience",
+    "lyric": "(Chorus)\n脚踏上熟悉的泥路 夕阳染红旧仓库\n车轮卷起金黄的土 回家的人最幸福\n不管走多远的路 见过多少繁华景物\n最温暖的版图 是推开那扇木窗户\n\n(Verse 1)\n皮卡车的收音机 唱着老掉牙的歌曲\n挡风玻璃上的虫迹 像归途的印记\n穿过玉米田的阴影 穿过那座石桥底\n远远看见谷仓顶 心跳就开始不规律\n\n(Verse 2)\n信箱里塞满了信 门口的秋千还在晃\n妈妈种的天竺葵 开得比哪年都旺\n我把行李箱放一旁 坐在门廊的台阶上\n那条老狗跑过来 尾巴摇得地板响\n\n(Chorus)\n脚踏上熟悉的泥路 夕阳染红旧仓库\n车轮卷起金黄的土 回家的人最幸福\n不管走多远的路 见过多少繁华景物\n最温暖的版图 是推开那扇木窗户\n\n(Verse 3)\n爸爸放下扳手 用围裙擦干净手掌\n厨房里飘来味道 是我最想念的配方\n那些城市的焦虑 像行李被我卸下\n此刻我只想说说 今年雨水怎么样\n\n(Verse 4)\n饭后我们坐在一起 看萤火虫点亮草场\n吉他靠在墙角 琴弦上有月光\n没有人问起工作 没有人提起房价\n只有收音机里 播着轻柔的蓝草乐章\n\n(Bridge)\n也许明天我又要启程 但今夜我不去想\n就让这片刻安宁 把疲惫的心熨烫\n星星比城里亮 风里有苜蓿的香\n原来我一直寻找的 就在这出发的地方\n\n(Outro)\n夜深了 灯熄了 炉火还在微微亮\n我听见蟋蟀合唱 听见自己的呼吸放缓\n回家的路也许漫长 但每一步都算\n回家的人啊 心里装着整个故乡的重量",
+    "createdTime": "2026-04-13T12:19:04.907Z",
+    "status": {
+      "created": false,
+      "downloaded": false,
+      "hasBackground": false,
+      "hasLyric": true,
+      "hasEffects": false,
+      "published": false
+    },
+    "stats": {
+      "createdCount": 0,
+      "downloadedCount": 0
+    },
+    "files": {
+      "audio": "",
+      "background": "",
+      "lyric": "D:\\work\\work\\git\\tools\\suno\\lyric\\《泥路归人》.txt"
+    },
+    "metadata": {
+      "duration": 0,
+      "size": 0,
+      "format": ""
+    },
+    "sunoData": {
+      "promptRef": "",
+      "styleRef": "",
+      "titleRef": "",
+      "createRef": ""
+    }
+  },
+  {
     "id": "1775952436563pu8ws3ey8",
     "title": "嘎嘎小企鹅",
     "style": "Acoustic folk lullaby with ukulele, glockenspiel, soft percussion. Warm, playful and dreamy.",
@@ -271,6 +376,41 @@
     "stats": {
       "createdCount": 2,
       "downloadedCount": 4
+    }
+  },
+  {
+    "id": "17760852198656idkxh7g8",
+    "title": "与狼共舞",
+    "style": "Gritty hard rock with pounding drums, distorted guitars, and primal howls; raw prairie storm energy.",
+    "lyric": "(Verse 1)\n马蹄踏碎月亮的银币\n风把鬃毛编成鞭子抽打天际\n我松开缰绳 松开姓名\n荒草在血管里竖起战旗\n\n(Verse 2)\n远方传来石头的低吼\n那是狼瞳点燃的星斗\n它们用獠牙刻下路标\n而我用伤口辨认自由\n\n(Chorus)\n来跳舞！在闪电劈开的祭坛\n让骨头记住这原始的鼓点\n来咆哮！当篝火舔舐黑暗\n我们既是猎物也是闪电\n草原把灵魂碾成粗盐\n撒向没有栅栏的明天\n\n(Verse 3)\n雨水在脊背上凿出河流\n每根毛发都长成匕首\n不要项圈不要马鞍的咒\n只臣服于大地裂开的嘶吼\n\n(Verse 4)\n头狼用疤痕划分疆界\n我用狂奔测量长夜\n当蹄声与爪印重叠\n我们共享同一种鲜血\n\n(Bridge)\n听——萨满鼓在泥土里翻身\n长生天收走所有星辰\n而我们的眼睛自燃成灯\n照见前世都是未驯服的游魂\n\n(Chorus)\n来跳舞！在闪电劈开的祭坛\n让骨头记住这原始的鼓点\n来咆哮！当篝火舔舐黑暗\n我们既是猎物也是闪电\n草原把灵魂碾成粗盐\n撒向没有栅栏的明天\n\n(Outro)\n风停了\n狼群退回岩画的背面\n我勒住缰绳\n却再也找不到\n自己的脸",
+    "createdTime": "2026-04-13T13:00:19.865Z",
+    "status": {
+      "created": false,
+      "downloaded": false,
+      "hasBackground": false,
+      "hasLyric": true,
+      "hasEffects": false,
+      "published": false
+    },
+    "stats": {
+      "createdCount": 0,
+      "downloadedCount": 0
+    },
+    "files": {
+      "audio": "",
+      "background": "",
+      "lyric": ""
+    },
+    "metadata": {
+      "duration": 0,
+      "size": 0,
+      "format": ""
+    },
+    "sunoData": {
+      "promptRef": "",
+      "styleRef": "",
+      "titleRef": "",
+      "createRef": ""
     }
   }
 ]

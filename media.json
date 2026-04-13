@@ -9,13 +9,118 @@
   "《草原风》.mp3": {
     "cover": "1776005018155_cover.png",
     "title": "《草原风》",
-    "description": "",
+    "description": "草原的风",
     "type": 1,
     "waveform": "bars",
-    "published": 1,
-    "outputFile": "/exports/exported_1776008231073.mp4"
+    "published": 2,
+    "outputFile": "/exports/exported_1776009028636.mp4",
+    "lyric": "1776080715536_lyric.txt"
   },
   "《草原风》 (2).mp3": {
     "cover": "bg_1776004629315.jpg"
+  },
+  "《追纸鸢》.mp3": {
+    "title": "《追纸鸢》",
+    "description": "童年的我，在姥姥的家里追逐风，追逐蜻蜓......",
+    "type": 1,
+    "waveform": "bars",
+    "published": 2,
+    "cover": "1776081301540_cover.webp",
+    "outputFile": "/exports/exported_1776081617362.mp4"
+  },
+  "泥路归人.mp3": {
+    "cover": "1776083538206_cover.png",
+    "title": "泥路归人",
+    "description": "脚踏上熟悉的泥路 夕阳染红旧仓库\r\n车轮卷起金黄的土 回家的人最幸福",
+    "type": 1,
+    "waveform": "bars",
+    "published": 2,
+    "outputFile": "/exports/exported_1776083959206.mp4"
+  },
+  "《咕咕嘎嘎》 (1).mp3": {
+    "title": "《咕咕嘎嘎》 (1)",
+    "description": "咕咕嘎嘎 咕咕\r\n嘎嘎咕咕 嘎\r\n晚安啦 小企鹅\r\n明天见呀",
+    "type": 1,
+    "waveform": "bars",
+    "published": 0
+  },
+  "《咕咕嘎嘎》.mp3": {
+    "title": "《咕咕嘎嘎》",
+    "description": "咕咕嘎嘎 咕咕\r\n嘎嘎咕咕 嘎\r\n晚安啦 小企鹅\r\n明天见呀",
+    "type": 1,
+    "waveform": "bars",
+    "published": 2,
+    "cover": "1776085050895_cover.png",
+    "outputFile": "/exports/exported_1776085356865.mp4"
+  },
+  "与狼共舞.mp3": {
+    "cover": "1776086474753_cover.png",
+    "title": "与狼共舞",
+    "description": "风沙掩埋来时的路\r\n\r\n与狼共舞\r\n永不驯服",
+    "type": 1,
+    "waveform": "bars",
+    "published": 2,
+    "outputFile": "/exports/exported_1776086905630.mp4"
+  },
+  "回声在草原上.mp3": {
+    "cover": "bg_1776087861970.png",
+    "title": "回声在草原上",
+    "description": "歌声回荡在草原",
+    "type": 1,
+    "waveform": "bars",
+    "published": 2,
+    "outputFile": "/exports/exported_1776088323521.mp4"
+  },
+  "龙庭初晓 (1).mp3": {
+    "title": "龙庭初晓 (1)",
+    "description": "龙庭初晓 ",
+    "type": 2,
+    "waveform": "bars",
+    "published": 2,
+    "cover": "bg_1776088834599.png",
+    "outputFile": "/exports/exported_1776089305368.mp4"
+  },
+  "音乐龙吹九霄 (1).mp3": {
+    "title": "龙腾九霄 ",
+    "description": "龙腾九霄 ",
+    "type": 2,
+    "waveform": "bars",
+    "published": 0,
+    "cover": "bg_1776088858647.png"
+  },
+  "烟雨江南一叶舟 (2).mp3": {
+    "title": "烟雨江南一叶舟 (2)",
+    "description": "",
+    "type": 2,
+    "waveform": "bars",
+    "published": 0
+  },
+  "山水一念.mp3": {
+    "title": "山水一念",
+    "description": "",
+    "type": 2,
+    "waveform": "bars",
+    "published": 0
+  },
+  "龙庭初晓.mp3": {
+    "title": "龙庭初晓",
+    "description": "",
+    "type": 2,
+    "waveform": "bars",
+    "published": 0
+  },
+  "烟雨江南一叶舟.mp3": {
+    "title": "烟雨江南一叶舟",
+    "description": "",
+    "type": 2,
+    "waveform": "bars",
+    "published": 0
+  },
+  "音乐龙吹九霄.mp3": {
+    "title": "音乐龙吹九霄",
+    "description": "",
+    "type": 2,
+    "waveform": "bars",
+    "published": 0
   }
 }

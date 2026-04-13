@@ -56,6 +56,7 @@ function renderMediaGrid() {
                     <button class="btn-play" onclick="playMedia('${media.filename}')" title="播放">▶</button>
                     <button class="btn-edit" onclick="editMedia('${media.filename}')" title="编辑">✏️</button>
                     <button class="btn-video" onclick="generateVideo('${media.filename}')" title="生成视频">🎬</button>
+                    ${media.published === 1 ? `<button class="btn-publish" onclick="publishVideo('${media.filename}')" title="发布到抖音">🚀</button>` : ''}
                     <button class="btn-delete" onclick="deleteMedia('${media.filename}')" title="删除">🗑️</button>
                 </div>
             </div>
@@ -440,6 +441,33 @@ async function deleteMedia(filename) {
         loadMediaList();
     } catch (error) {
         alert('删除失败: ' + error.message);
+    }
+}
+
+async function publishVideo(filename) {
+    if (!confirm(`确定要发布 "${filename}" 到抖音吗？`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/media/publish', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ filename })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || '发布失败');
+        }
+
+        alert('发布成功！');
+        loadMediaList();
+    } catch (error) {
+        alert('发布失败: ' + error.message);
     }
 }
 
