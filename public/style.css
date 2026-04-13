@@ -505,6 +505,29 @@ body {
     padding: 10px;
     background: #f7fafc;
     border-radius: 5px;
+    width: 100%;
+    border: 1px solid #ddd;
+    resize: vertical;
+    min-height: 200px;
+}
+
+.lyric-actions {
+    margin-top: 10px;
+    text-align: right;
+}
+
+.btn-save {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-save:hover {
+    background: #45a049;
 }
 
 /* 响应式设计 */

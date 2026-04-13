@@ -85,8 +85,9 @@
     "description": "龙腾九霄 ",
     "type": 2,
     "waveform": "bars",
-    "published": 0,
-    "cover": "bg_1776088858647.png"
+    "published": 1,
+    "cover": "bg_1776088858647.png",
+    "outputFile": "/exports/exported_1776089890006.mp4"
   },
   "烟雨江南一叶舟 (2).mp3": {
     "title": "烟雨江南一叶舟 (2)",

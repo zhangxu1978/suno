@@ -104,14 +104,17 @@
         </div>
     </div>
 
-    <!-- 歌词查看模态框 -->
+    <!-- 歌词查看/编辑模态框 -->
     <div id="lyricModal" class="modal">
         <div class="modal-header">
             <h3 id="lyricTitle">歌词</h3>
             <span class="close" onclick="closeLyricModal()">&times;</span>
         </div>
         <div class="modal-body">
-            <pre class="lyric-content" id="lyricContent"></pre>
+            <textarea class="lyric-content" id="lyricContent" placeholder="暂无歌词"></textarea>
+            <div class="lyric-actions">
+                <button class="btn-save" id="saveLyricBtn" onclick="saveLyric()">保存歌词</button>
+            </div>
         </div>
     </div>
 

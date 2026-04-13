@@ -192,6 +192,14 @@ class SongManager {
   updateSongStatus(songId, statusUpdates) {
     const song = this.songs.find(s => s.id === songId);
     if (song) {
+      if (statusUpdates.lyric !== undefined) {
+        song.lyric = statusUpdates.lyric;
+        if (statusUpdates.lyric) {
+          song.files.lyric = this.saveLyricFile(song.title, statusUpdates.lyric);
+          song.status.hasLyric = true;
+        }
+      }
+      
       Object.assign(song.status, statusUpdates);
       
       // 如果设置了下载状态，检查音频文件

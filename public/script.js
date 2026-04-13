@@ -355,19 +355,57 @@ async function uploadBackground() {
     }
 }
 
+// 当前正在编辑的歌曲ID
+let currentEditingSongId = null;
+
 // 显示歌词
 async function showLyric(songId) {
     const song = songs.find(s => s.id === songId);
-    if (!song || !song.lyric) return;
+    if (!song) return;
     
+    currentEditingSongId = songId;
     document.getElementById('lyricTitle').textContent = song.title + ' - 歌词';
-    document.getElementById('lyricContent').textContent = song.lyric;
+    document.getElementById('lyricContent').value = song.lyric || '';
     document.getElementById('lyricModal').style.display = 'block';
+}
+
+// 保存歌词
+async function saveLyric() {
+    if (!currentEditingSongId) return;
+    
+    const lyric = document.getElementById('lyricContent').value;
+    const song = songs.find(s => s.id === currentEditingSongId);
+    if (!song) return;
+    
+    try {
+        const response = await fetch(`/api/songs/${currentEditingSongId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                lyric: lyric
+            })
+        });
+        
+        if (response.ok) {
+            song.lyric = lyric;
+            alert('歌词保存成功！');
+            closeLyricModal();
+            renderSongs();
+        } else {
+            alert('保存失败，请重试');
+        }
+    } catch (error) {
+        console.error('保存歌词失败:', error);
+        alert('保存失败，请重试');
+    }
 }
 
 // 关闭歌词模态框
 function closeLyricModal() {
     document.getElementById('lyricModal').style.display = 'none';
+    currentEditingSongId = null;
 }
 
 // 切换下载状态
