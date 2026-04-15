@@ -3,3 +3,4 @@ node_modules
 /lyric
 *.png
 /download
+media/covers/*

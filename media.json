@@ -85,7 +85,7 @@
     "description": "龙腾九霄 ",
     "type": 2,
     "waveform": "bars",
-    "published": 1,
+    "published": 2,
     "cover": "bg_1776088858647.png",
     "outputFile": "/exports/exported_1776089890006.mp4"
   },
@@ -118,10 +118,57 @@
     "published": 0
   },
   "音乐龙吹九霄.mp3": {
-    "title": "音乐龙吹九霄",
+    "title": "盛世龙吟",
+    "description": "九霄腾龙，龙吟九州",
+    "type": 2,
+    "waveform": "bars",
+    "published": 2,
+    "cover": "1776166866961_cover.png",
+    "outputFile": "/exports/exported_1776167152202.mp4"
+  },
+  "山间晨雾.mp3": {
+    "cover": "1776169642833_cover.webp",
+    "title": "山间晨雾",
     "description": "",
     "type": 2,
     "waveform": "bars",
-    "published": 0
+    "published": 2,
+    "outputFile": "/exports/exported_1776169955240.mp4"
+  },
+  "黎明.mp3": {
+    "title": "黎明",
+    "description": "天发杀机",
+    "type": 2,
+    "waveform": "bars",
+    "published": 2,
+    "cover": "1776169802112_cover.webp",
+    "outputFile": "/exports/exported_1776170332204.mp4"
+  },
+  "三十而已.mp3": {
+    "cover": "bg_1776170633626.png",
+    "title": "三十而已",
+    "description": "程序员30岁就老了",
+    "type": 1,
+    "waveform": "bars",
+    "published": 2,
+    "outputFile": "/exports/exported_1776172095587.mp4"
+  },
+  "《云说》.mp3": {
+    "title": "《云说》",
+    "description": "那年我十八 背包装朝霞",
+    "type": 1,
+    "waveform": "bars",
+    "published": 2,
+    "cover": "1776172407243_cover.png",
+    "outputFile": "/exports/exported_1776172727733.mp4"
+  },
+  "山歌好比春江水.mp3": {
+    "title": "山歌好比春江水",
+    "description": "山歌好比春江水",
+    "type": 1,
+    "waveform": "bars",
+    "published": 2,
+    "cover": "1776176711372_cover.png",
+    "outputFile": "/exports/exported_1776176850844.mp4"
   }
 }
